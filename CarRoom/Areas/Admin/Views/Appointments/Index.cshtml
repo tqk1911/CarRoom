@@ -1,0 +1,143 @@
+﻿@model IEnumerable<CarRoom.Models.Appointment>
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Quản lý lịch hẹn";
+    string currentStatus = ViewBag.CurrentStatus as string ?? "";
+}
+
+<div class="container-fluid text-white" style="background-color: #1a1e29; min-height: 85vh; padding: 24px; border-radius: 12px;">
+    <!-- Tiêu đề & Tag lọc trạng thái -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2 border-bottom border-secondary pb-3">
+        <div>
+            <h4 class="fw-bold mb-1 text-white">Bảng danh sách lịch hẹn</h4>
+            <span class="text-secondary small">Theo dõi và cập nhật trạng thái lịch hẹn xem xe của khách hàng</span>
+        </div>
+        <div class="d-flex align-items-center gap-3 small">
+            <a asp-area="Admin" asp-controller="Appointments" asp-action="Index"
+               class="text-decoration-none @(string.IsNullOrEmpty(currentStatus) ? "fw-bold text-white" : "text-secondary")">Tất cả</a>
+            <a asp-area="Admin" asp-controller="Appointments" asp-action="Index" asp-route-status="Đang chờ"
+               class="text-decoration-none text-warning">
+                <span class="p-1 rounded-circle bg-warning d-inline-block me-1" style="width:8px; height:8px;"></span> Đang chờ
+            </a>
+            <a asp-area="Admin" asp-controller="Appointments" asp-action="Index" asp-route-status="Đã xác nhận"
+               class="text-decoration-none text-success">
+                <span class="p-1 rounded-circle bg-success d-inline-block me-1" style="width:8px; height:8px;"></span> Đã xác nhận
+            </a>
+            <a asp-area="Admin" asp-controller="Appointments" asp-action="Index" asp-route-status="Đã hủy"
+               class="text-decoration-none text-danger">
+                <span class="p-1 rounded-circle bg-danger d-inline-block me-1" style="width:8px; height:8px;"></span> Đã hủy
+            </a>
+        </div>
+    </div>
+
+    <!-- Thanh tìm kiếm -->
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <form method="get" asp-area="Admin" asp-controller="Appointments" asp-action="Index" class="d-flex">
+                <input type="hidden" name="status" value="@currentStatus" />
+                <div class="input-group">
+                    <input type="text" name="search" value="@ViewBag.CurrentSearch"
+                           class="form-control bg-dark text-white border-secondary"
+                           placeholder="Tìm kiếm khách hàng, SĐT, xe..." />
+                    <button class="btn btn-outline-secondary text-white" type="submit">
+                        <i class="bi bi-search"></i> Tìm
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show bg-success text-white border-0 py-2" role="alert">
+            <i class="bi bi-check-circle me-1"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Bảng danh sách dữ liệu -->
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle mb-0" style="background-color: #212634; border-radius: 8px; overflow: hidden;">
+            <thead class="text-secondary small border-secondary">
+                <tr>
+                    <th scope="col" class="py-3 px-3">Tên khách</th>
+                    <th scope="col" class="py-3">Xe</th>
+                    <th scope="col" class="py-3">Ngày giờ</th>
+                    <th scope="col" class="py-3 text-center">Trạng thái</th>
+                    <th scope="col" class="py-3 text-center">Hành động</th>
+                </tr>
+            </thead>
+            <tbody class="border-secondary">
+                @if (Model == null || !Model.Any())
+                {
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-secondary">
+                            Không có dữ liệu lịch hẹn phù hợp.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="px-3 fw-medium">
+                                <div>@item.HoTenKhach</div>
+                                <small class="text-secondary">@item.SoDienThoai</small>
+                            </td>
+                            <td>
+                                @(item.Car?.CarModel?.TenDongXe ?? "Xe #" + item.CarId)
+                            </td>
+                            <td>
+                                @item.NgayHen.ToString("hh:mm tt | dd-MM-yyyy")
+                            </td>
+                            <td class="text-center">
+                                @if (item.TrangThai == "Đang chờ")
+                                {
+                                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">
+                                        ● Đang chờ
+                                    </span>
+                                }
+                                else if (item.TrangThai == "Đã xác nhận")
+                                {
+                                    <span class="badge bg-success px-3 py-2 rounded-pill">
+                                        ● Đã xác nhận
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger px-3 py-2 rounded-pill">
+                                        ● Đã hủy
+                                    </span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <div class="d-inline-flex gap-2">
+                                    @if (item.TrangThai == "Đang chờ")
+                                    {
+                                        <form asp-area="Admin" asp-controller="Appointments" asp-action="Confirm" asp-route-id="@item.Id" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-light fw-bold text-dark px-3 py-1 shadow-sm">
+                                                ✓ Xác nhận
+                                            </button>
+                                        </form>
+                                        <form asp-area="Admin" asp-controller="Appointments" asp-action="Cancel" asp-route-id="@item.Id" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-dark border-secondary text-secondary px-3 py-1" onclick="return confirm('Bạn có chắc chắn muốn hủy lịch hẹn này?');">
+                                                ✕ Hủy
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-secondary small fst-italic">Đã hoàn tất</span>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

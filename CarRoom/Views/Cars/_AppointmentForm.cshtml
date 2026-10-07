@@ -1,0 +1,55 @@
+﻿@model CarRoom.Models.ViewModels.AppointmentFormViewModel
+
+<div class="card border border-light-subtle rounded-3 shadow-sm p-3 bg-white">
+    <h5 class="fw-bold text-dark mb-3">Form đặt lịch xem xe</h5>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show py-2 px-3 small" role="alert">
+            <i class="bi bi-check-circle me-1"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show py-2 px-3 small" role="alert">
+            <i class="bi bi-exclamation-triangle me-1"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <form asp-controller="Appointment" asp-action="Book" method="post" id="appointmentForm">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="CarId" />
+
+        <div class="mb-3">
+            <label asp-for="HoTenKhach" class="form-label small fw-semibold text-secondary mb-1">Họ tên</label>
+            <input asp-for="HoTenKhach" class="form-control form-control-sm rounded-2" placeholder="Họ tên" />
+            <span asp-validation-for="HoTenKhach" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="SoDienThoai" class="form-label small fw-semibold text-secondary mb-1">SĐT</label>
+            <input asp-for="SoDienThoai" class="form-control form-control-sm rounded-2" placeholder="SĐT" />
+            <span asp-validation-for="SoDienThoai" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="NgayHen" class="form-label small fw-semibold text-secondary mb-1">Ngày giờ hẹn</label>
+            <input asp-for="NgayHen" type="datetime-local" class="form-control form-control-sm rounded-2"
+                   min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+            <span asp-validation-for="NgayHen" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="GhiChu" class="form-label small fw-semibold text-secondary mb-1">Ghi chú</label>
+            <textarea asp-for="GhiChu" class="form-control form-control-sm rounded-2" rows="2" placeholder="Yêu cầu thêm..."></textarea>
+            <span asp-validation-for="GhiChu" class="text-danger small"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold rounded-2 mt-2 shadow-sm" style="background-color: #1e70bf; border-color: #1e70bf;">
+            Đặt lịch hẹn ngay
+        </button>
+    </form>
+</div>
