@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,40 +8,88 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/CarRoom.styles.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false) @*nếu có section Styles thì render css vào*@
+
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">CarRoom</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+        <nav class="navbar navbar-expand-lg navbar-dark" style="background:#1f2d3d">
+            <div class="container">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/logo.png" alt="CarRoom" height="60" />
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+                <div class="collapse navbar-collapse" id="mainNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Cars" asp-action="Index">Xe</a></li>
                     </ul>
+                    <ul class="navbar-nav align-items-lg-center"> 
+                        @if (User.Identity?.IsAuthenticated == true) //Kiểm tra xem đã đăng nhập chưa
+                            {
+                                <li class="nav-item dropdown"> 
+                                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">@User.Identity.Name</a> //hiển thị tên ng dùng
+                                    <ul class="dropdown-menu dropdown-menu-end"> 
+                                        <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile">Trang cá nhân</a></li>
+                                        @if (User.IsInRole("Admin"))
+                                        {
+                                            <li><a class="dropdown-item" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Khu quản trị</a></li>
+                                        }
+                                        else if (User.IsInRole("Staff"))
+                                        {
+                                            <li><a class="dropdown-item" asp-area="Admin" asp-controller="Appointments" asp-action="Index">Quản lý lịch hẹn</a></li>
+                                        }
+                                        <li><hr class="dropdown-divider" /></li>
+                                        <li>
+                                            <form asp-area="" asp-controller="Account" asp-action="Logout" method="post">
+                                                <button type="submit" class="dropdown-item">Đăng xuất</button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Login">Đăng nhập</a></li>
+                                <li class="nav-item"><a class="btn btn-light btn-sm ms-lg-2" asp-controller="Account" asp-action="Register">Đăng ký</a></li>
+                            }
+
+                        </ul>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
+    <main class="container flex-grow-1 py-3"> 
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show">@TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show">@TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+        }
+        @RenderBody()
+    </main>
+    <footer class="text-white py-4 mt-4" style="background:#1f2d3d">
         <div class="container">
-            &copy; 2026 - CarRoom - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <div class="row gy-2">
+                <div class="col-md-6">
+                    <h6 class="fw-bold">Thông tin liên hệ</h6>
+                    <div>Hotline: 094 817 2441</div>
+                    <div>Email: auto69@gmail.com</div>
+                </div>
+                <div class="col-md-6">
+                    <h6 class="fw-bold">Địa chỉ showroom</h6>
+                    <div>Số 3 phố Cầu Giấy, Phường Láng, TP. Hà Nội</div>
+                </div>
+            </div>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - CarRoom Admin</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <style>
+            body { background:#161d2b; color:#e5e9f0; }
+            .admin-sidebar { width:230px; min-height:100vh; background:#1f2736; }
+            .admin-sidebar .nav-link { color:#aab4c5; border-radius:.5rem; margin-bottom:.25rem; }
+            .admin-sidebar .nav-link:hover { background:#2a3447; color:#fff; }
+            .admin-sidebar .nav-link.active { background:#3b82f6; color:#fff; }
+            .admin-topbar { background:#1f2736; border-bottom:1px solid #2a3447; }
+            .admin-content { background:#161d2b; }
+            .admin-content .card, .admin-content .table { --bs-table-bg:#1f2736; --bs-table-color:#e5e9f0;
+                --bs-table-border-color:#2a3447; background:#1f2736; color:#e5e9f0; border-color:#2a3447; }
+            .admin-content .form-control, .admin-content .form-select { background:#161d2b; color:#e5e9f0; border-color:#2a3447; }
+            .admin-content .text-muted { color:#8a96aa !important; }
+    </style>
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    @{
+        var ctrl = ViewContext.RouteData.Values["controller"]?.ToString(); //lấy tên Controller
+        string Active(string c) => ctrl == c ? "active" : "";
+    }
+    <div class="d-flex">
+        <aside class="admin-sidebar p-3 d-none d-md-block"> //menu trái
+            <div class="mb-4 px-2">
+                <img src="~/images/logo.png" alt="CarRoom" height="28" />
+                <small class="text-muted">Admin Panel</small>
+            </div>
+            <ul class="nav flex-column">
+                @if (User.IsInRole("Admin"))
+                {
+                    <li class="nav-item"><a class="nav-link @Active("Dashboard")" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link @Active("Cars")" asp-area="Admin" asp-controller="Cars" asp-action="Index">Quản lý xe</a></li>
+                }
+                <li class="nav-item"><a class="nav-link @Active("Appointments")" asp-area="Admin" asp-controller="Appointments" asp-action="Index">Quản lý lịch hẹn</a></li>
+                @if (User.IsInRole("Admin"))
+                {
+                    <li class="nav-item"><a class="nav-link @Active("Categories")" asp-area="Admin" asp-controller="Categories" asp-action="Index">Quản lý danh mục</a></li>
+                    <li class="nav-item"><a class="nav-link @Active("Users")" asp-area="Admin" asp-controller="Users" asp-action="Index">Quản lý user</a></li>
+                }
+            </ul>
+        </aside>
+
+        <div class="flex-grow-1">
+            <div class="admin-topbar d-flex justify-content-between align-items-center px-4 py-3">
+                <h5 class="mb-0">@ViewData["Title"]</h5>
+                <div class="d-flex align-items-center gap-3">
+                    <a class="btn btn-sm btn-outline-light" asp-area="" asp-controller="Home" asp-action="Index">Về trang web</a>
+                    <span>@User.Identity?.Name</span>
+                    <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+                        <button type="submit" class="btn btn-sm btn-danger">Đăng xuất</button>
+                    </form>
+                </div>
+            </div>
+            <main class="admin-content p-4">
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show">
+                        @TempData["Success"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show">
+                        @TempData["Error"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
