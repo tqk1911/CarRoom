@@ -28,10 +28,10 @@ namespace CarRoom.Models.ViewModels
         [Display(Name = "Mô tả")]
         public string? MoTa { get; set; }
         [Display(Name = "Đang bán (hiển thị)")]
-        public bool TrangThai { get; set; } = true;
+        public string TrangThai { get; set; } = "Còn hàng";
 
         [Display(Name = "Xe nổi bật (hiện ở trang chủ)")]
-        public bool NoiBat { get; set; }
+        public string NoiBat { get; set; } = "Không";
         public List<CarColorInput> Colors { get; set; } = new();
         public List<SelectListItem> CarModels { get; set; } = new();
 
