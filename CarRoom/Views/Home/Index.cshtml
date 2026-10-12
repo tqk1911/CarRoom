@@ -1,123 +1,280 @@
 ﻿@model IEnumerable<CarRoom.Models.Car>
 @{
-    ViewData["Title"] = "Trang chủ - Car Showroom";
+    ViewData["Title"] = "Trang Chủ - Car Showroom";
 }
 
-<!-- 1. HERO BANNER -->
-<section class="py-5 bg-dark text-white position-relative" style="background: linear-gradient(135deg, #11141c 0%, #1e2433 100%); min-height: 480px;">
-    <div class="container py-4">
-        <div class="row align-items-center">
-            <div class="col-lg-6 mb-4 mb-lg-0">
-                <span class="text-uppercase tracking-wider text-secondary small fw-semibold">Chào mừng đến với Car Showroom</span>
-                <h1 class="display-5 fw-bold mt-2 mb-4 text-white">KHÁM PHÁ SỰ HOÀN HẢO.</h1>
-                <p class="text-secondary mb-4 fs-6">Showroom xe ô tô thế hệ mới. Đa dạng mẫu mã, công nghệ vượt trội và dịch vụ tư vấn hàng đầu.</p>
-                <a asp-controller="Cars" asp-action="Index" class="btn btn-light px-4 py-2 fw-semibold rounded-pill shadow">
+<style>
+    /* 1. Kỹ thuật Breakout phá vỡ container cha để Hero Banner tràn 100% chiều ngang */
+    .hero-banner-fullwidth {
+        width: 100vw;
+        position: relative;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+        margin-top: -1.5rem; /* Bù trừ khoảng trống padding-top mặc định của layout */
+        height: 480px;
+        background-color: #cfd8dc;
+        overflow: hidden;
+    }
+
+    /* 2. Ảnh nền xe Mercedes EQS: Căn sát lề phải, giữ trọn vẹn toàn bộ đầu và thân xe */
+    .hero-bg-img {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: right center;
+    }
+
+    /* 3. Lớp gradient mờ bảo vệ khối chữ HTML, hòa tan mép trái của ảnh nền */
+    .hero-gradient-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, rgba(20, 27, 36, 0.82) 0%, rgba(20, 27, 36, 0.45) 40%, rgba(255, 255, 255, 0) 70%);
+        z-index: 2;
+    }
+
+    /* 4. Khối typography HTML của Hero Banner */
+    .hero-subtitle {
+        font-size: 1.15rem;
+        font-weight: 700;
+        letter-spacing: 1.2px;
+        color: #f8fafc;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        margin-bottom: 0.75rem;
+        display: inline-block;
+    }
+
+    .hero-title-single-line {
+        font-size: clamp(2rem, 3.4vw, 3rem);
+        font-weight: 900;
+        color: #ffffff;
+        letter-spacing: -0.5px;
+        white-space: nowrap;
+        text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+        margin-bottom: 1.75rem;
+    }
+
+    /* 5. Nút bấm tương tác thật chuẩn UI/UX */
+    .btn-hero-action {
+        background-color: #ffffff;
+        color: #1a202c;
+        font-weight: 600;
+        padding: 0.65rem 1.85rem;
+        border-radius: 50rem;
+        transition: all 0.25s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+        .btn-hero-action:hover {
+            background-color: #f1f5f9;
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.25);
+            color: #0f172a;
+        }
+
+    /* 6. Thẻ danh mục (Category cards) */
+    .category-card {
+        height: 185px;
+        border-radius: 0.85rem;
+        overflow: hidden;
+        position: relative;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+        .category-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.15) !important;
+        }
+
+    .category-badge {
+        position: absolute;
+        top: 14px;
+        left: 14px;
+        background-color: rgba(30, 41, 59, 0.75);
+        backdrop-filter: blur(4px);
+        color: #ffffff;
+        padding: 0.35rem 0.85rem;
+        border-radius: 50rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    /* 7. Thẻ xe mới về (Car cards) */
+    .car-card {
+        border-radius: 0.85rem;
+        overflow: hidden;
+        border: none;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .car-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.1) !important;
+        }
+
+    .car-img-box {
+        position: relative;
+        height: 180px;
+        background-color: #f8fafc;
+    }
+
+    .car-badge-new {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: #0dcaf0;
+        color: #000;
+        font-weight: 700;
+        font-size: 0.65rem;
+        padding: 0.25rem 0.55rem;
+        border-radius: 0.35rem;
+    }
+</style>
+
+<!-- KHỐI 1: HERO BANNER (TRÀN 100VW, CHỮ HTML, KHÔNG CẮT ĐẦU XE) -->
+<section class="hero-banner-fullwidth mb-5 shadow-sm">
+    <img src="~/images/hero-mercedes-eqs.png"
+         asp-append-version="true"
+         alt="Car Showroom Hero Banner"
+         class="hero-bg-img" />
+
+    <div class="hero-gradient-overlay"></div>
+
+    <div class="container h-100 position-relative z-3 d-flex align-items-center">
+        <div class="col-12 col-xl-10 text-white ps-lg-3">
+            <span class="hero-subtitle text-uppercase">
+                CHÀO MỪNG ĐẾN VỚI CAR SHOWROOM.
+            </span>
+
+            <h1 class="hero-title-single-line text-uppercase">
+                KHÁM PHÁ SỰ HOÀN HẢO.
+            </h1>
+
+            <div>
+                <a asp-controller="Cars" asp-action="Index" class="btn-hero-action shadow-sm">
                     Xem Dòng Xe Mới Nhất
                 </a>
             </div>
-            <div class="col-lg-6 text-center">
-                <img src="https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=1000&q=80" 
-                     alt="Mercedes EQS Showroom" class="img-fluid rounded-4 shadow-lg" style="max-height: 360px; object-fit: contain;" />
-            </div>
         </div>
     </div>
 </section>
 
-<!-- 2. BỘ SƯU TẬP (BODY TYPES) -->
-<section class="py-5 bg-white">
-    <div class="container">
-        <h4 class="fw-bold mb-4 text-dark">Bộ sưu tập</h4>
-        <div class="row g-4">
+<!-- NỘI DUNG CONTAINER TRANG CHỦ -->
+<div class="container px-lg-4">
+    <!-- KHỐI 2: BỘ SƯU TẬP (3 CỘT) -->
+    <section class="mb-5">
+        <h4 class="fw-bold mb-3 text-dark">Bộ sưu tập</h4>
+        <div class="row g-3">
+            <!-- 1. SUV -->
             <div class="col-md-4">
-                <a asp-controller="Cars" asp-action="Index" asp-route-bodyType="SUV" class="text-decoration-none">
-                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative">
-                        <img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80" 
-                             class="card-img-top" style="height: 180px; object-fit: cover;" alt="SUV" />
-                        <div class="position-absolute top-0 start-0 m-3">
-                            <span class="badge bg-dark bg-opacity-75 px-3 py-2 rounded-pill fs-6">SUV</span>
-                        </div>
+                <a asp-controller="Cars" asp-action="Index" asp-route-category="SUV" class="text-decoration-none">
+                    <div class="category-card shadow-sm">
+                        <img src="https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=800&q=80"
+                             class="w-100 h-100 object-fit-cover" alt="SUV" />
+                        <span class="category-badge">SUV</span>
                     </div>
                 </a>
             </div>
+
+            <!-- 2. Sedan -->
             <div class="col-md-4">
-                <a asp-controller="Cars" asp-action="Index" asp-route-bodyType="Sedan" class="text-decoration-none">
-                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative">
-                        <img src="https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=600&q=80" 
-                             class="card-img-top" style="height: 180px; object-fit: cover;" alt="Sedan" />
-                        <div class="position-absolute top-0 start-0 m-3">
-                            <span class="badge bg-dark bg-opacity-75 px-3 py-2 rounded-pill fs-6">Sedan</span>
-                        </div>
+                <a asp-controller="Cars" asp-action="Index" asp-route-category="Sedan" class="text-decoration-none">
+                    <div class="category-card shadow-sm">
+                        <img src="https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=800&q=80"
+                             class="w-100 h-100 object-fit-cover" alt="Sedan" />
+                        <span class="category-badge">Sedan</span>
                     </div>
                 </a>
             </div>
+
+            <!-- 3. Xe Điện: Đã thay bằng ảnh SUV điện cao cấp màu xám titan chuẩn showroom -->
             <div class="col-md-4">
-                <a asp-controller="Cars" asp-action="Index" asp-route-fuel="Điện" class="text-decoration-none">
-                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative">
-                        <img src="https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&w=600&q=80" 
-                             class="card-img-top" style="height: 180px; object-fit: cover;" alt="Xe Điện" />
-                        <div class="position-absolute top-0 start-0 m-3">
-                            <span class="badge bg-dark bg-opacity-75 px-3 py-2 rounded-pill fs-6">Xe Điện</span>
-                        </div>
+                <a asp-controller="Cars" asp-action="Index" asp-route-category="Electric" class="text-decoration-none">
+                    <div class="category-card shadow-sm">
+                        <img src="https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=800&q=80"
+                             class="w-100 h-100 object-fit-cover" alt="Xe Điện" />
+                        <span class="category-badge">Xe Điện</span>
                     </div>
                 </a>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- 3. DANH SÁCH XE MỚI VỀ -->
-<section class="py-5 bg-light">
-    <div class="container">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+    <!-- KHỐI 3: XE MỚI VỀ (4 CỘT) -->
+    <section class="mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
             <h4 class="fw-bold mb-0 text-dark">Xe mới về</h4>
-            <a asp-controller="Cars" asp-action="Index" class="text-decoration-none fw-semibold text-primary">Xem tất cả &rarr;</a>
+            <div class="d-flex align-items-center gap-2">
+                <a asp-controller="Cars" asp-action="Index" class="text-decoration-none text-muted small me-2">Xem tất cả &rarr;</a>
+                <button class="btn btn-sm btn-outline-secondary rounded-circle" type="button" style="width: 28px; height: 28px; padding: 0;">&lsaquo;</button>
+                <button class="btn btn-sm btn-outline-secondary rounded-circle" type="button" style="width: 28px; height: 28px; padding: 0;">&rsaquo;</button>
+            </div>
         </div>
-        <div class="row g-4">
-            @if (Model != null && Model.Any())
-            {
-                @foreach (var car in Model)
-                {
-                    <div class="col-xl-3 col-lg-4 col-md-6">
-                        <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
-                            <div class="position-relative">
-                                <img src="https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=600&q=80" 
-                                     class="card-img-top" alt="@car.CarModel?.TenDongXe" 
-                                     style="height: 200px; object-fit: cover;" />
-                                <span class="badge bg-primary position-absolute top-0 start-0 m-2 px-2 py-1 rounded">NEW</span>
-                            </div>
-                            <div class="card-body d-flex flex-column justify-content-between">
-                                <div>
-                                    <small class="text-muted">@(car.CarModel?.Brand?.TenHang ?? "Hãng xe")</small>
-                                    <h6 class="fw-bold text-dark mt-1 mb-2 text-truncate">
-                                        <a asp-controller="Cars" asp-action="Detail" asp-route-id="@car.Id" class="text-decoration-none text-dark">
-                                            @(car.CarModel?.TenDongXe ?? "Dòng xe")
-                                        </a>
-                                    </h6>
-                                    <div class="fw-bold text-danger fs-5 mb-2">
-                                        @car.Gia.ToString("#,##0") VND
-                                    </div>
-                                    <div class="small text-secondary mb-3">
-                                        <span>@car.NamSanXuat</span> • 
-                                        <span>@car.HopSo</span> • 
-                                        <span>@car.NhienLieu</span>
-                                    </div>
-                                </div>
-                                <div class="d-flex gap-2">
-                                    <a asp-controller="Cars" asp-action="Detail" asp-route-id="@car.Id" class="btn btn-outline-dark btn-sm w-100 rounded-pill">
-                                        Chi tiết
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3">
+            <div class="col">
+                <div class="card h-100 car-card shadow-sm">
+                    <div class="car-img-box">
+                        <img src="https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=600&q=80" class="w-100 h-100 object-fit-cover" alt="Range Rover Velar" />
+                        <span class="car-badge-new">NEW</span>
                     </div>
-                }
-            }
-            else
-            {
-                <div class="col-12 text-center py-5 text-muted">
-                    <p>Hiện chưa có xe mới đăng tải.</p>
+                    <div class="card-body p-3">
+                        <h6 class="fw-bold text-dark text-truncate mb-1">Range Rover Velar</h6>
+                        <p class="text-primary fw-bolder mb-1" style="font-size: 0.95rem;">3.890.000.000 VND</p>
+                        <small class="text-muted d-block" style="font-size: 0.75rem;">2026 &bull; Tự động &bull; Xăng</small>
+                    </div>
                 </div>
-            }
+            </div>
+
+            <div class="col">
+                <div class="card h-100 car-card shadow-sm">
+                    <div class="car-img-box">
+                        <img src="https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=600&q=80" class="w-100 h-100 object-fit-cover" alt="BMW 530i" />
+                        <span class="car-badge-new">NEW</span>
+                    </div>
+                    <div class="card-body p-3">
+                        <h6 class="fw-bold text-dark text-truncate mb-1">BMW 530i M-Sport</h6>
+                        <p class="text-primary fw-bolder mb-1" style="font-size: 0.95rem;">2.750.000.000 VND</p>
+                        <small class="text-muted d-block" style="font-size: 0.75rem;">2026 &bull; Tự động &bull; Xăng</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="card h-100 car-card shadow-sm">
+                    <div class="car-img-box">
+                        <img src="https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=600&q=80" class="w-100 h-100 object-fit-cover" alt="Volvo S90" />
+                        <span class="car-badge-new">NEW</span>
+                    </div>
+                    <div class="card-body p-3">
+                        <h6 class="fw-bold text-dark text-truncate mb-1">Volvo S90 Recharge</h6>
+                        <p class="text-primary fw-bolder mb-1" style="font-size: 0.95rem;">2.390.000.000 VND</p>
+                        <small class="text-muted d-block" style="font-size: 0.75rem;">2026 &bull; Tự động &bull; Hybrid</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="card h-100 car-card shadow-sm">
+                    <div class="car-img-box">
+                        <img src="https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&w=600&q=80" class="w-100 h-100 object-fit-cover" alt="Tesla Model 3" />
+                        <span class="car-badge-new">NEW</span>
+                    </div>
+                    <div class="card-body p-3">
+                        <h6 class="fw-bold text-dark text-truncate mb-1">Tesla Model 3 Performance</h6>
+                        <p class="text-primary fw-bolder mb-1" style="font-size: 0.95rem;">1.890.000.000 VND</p>
+                        <small class="text-muted d-block" style="font-size: 0.75rem;">2026 &bull; Tự động &bull; Điện</small>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-</section>
+    </section>
+</div>
