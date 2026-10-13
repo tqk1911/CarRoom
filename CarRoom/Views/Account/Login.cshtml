@@ -1,0 +1,39 @@
+﻿@model CarRoom.Models.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Đăng nhập";
+}
+
+<div class="row justify-content-center my-5">
+    <div class="col-md-5 col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h3 class="text-center fw-bold mb-4">ĐĂNG NHẬP</h3>
+                <form asp-action="Login" asp-route-returnUrl="@ViewBag.ReturnUrl" method="post"> @*asp-route-returnUrl="@ViewBag.ReturnUrl" truyền địa chỉ quay lại sau khi login*@
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-semibold"></label>
+                        <input asp-for="Email" class="form-control" placeholder="Email" autofocus />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="MatKhau" class="form-label fw-semibold"></label>
+                        <input asp-for="MatKhau" class="form-control" placeholder="Mật khẩu" />
+                        <span asp-validation-for="MatKhau" class="text-danger small"></span>
+                    </div>
+                    @*ghi nhớ login*@
+                    <div class="form-check mb-3">
+                        <input asp-for="GhiNho" class="form-check-input" />
+                        <label asp-for="GhiNho" class="form-check-label"></label>
+                    </div>
+                    <button type="submit" class="btn btn-dark w-100 mb-2">Đăng nhập</button>
+                    <a href="#" class="btn btn-outline-secondary w-100 disabled" aria-disabled="true">Đăng nhập bằng Google</a>
+                </form>
+                <p class="text-center mt-3 mb-0">Chưa có tài khoản? <a asp-action="Register" class="fw-semibold">Đăng ký</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,11 @@
+﻿@{
+    ViewData["Title"] = "Không có quyền truy cập";
+}
+
+<div class="text-center my-5 py-5">
+    <h1 class="display-1 fw-bold text-danger">403</h1>
+    <h3 class="mb-3">Bạn không có quyền truy cập trang này</h3>
+    <p class="text-muted">Vui lòng đăng nhập bằng tài khoản có quyền phù hợp.</p>
+    <a asp-controller="Home" asp-action="Index" class="btn btn-dark me-2">Về trang chủ</a>
+    <a asp-action="Login" class="btn btn-outline-dark">Đăng nhập tài khoản khác</a>
+</div>

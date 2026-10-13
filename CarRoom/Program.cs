@@ -17,7 +17,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddSession(o =>
 {
     o.IdleTimeout = TimeSpan.FromMinutes(30);
-    o.Cookie.HttpOnly = true;
+    o.Cookie.HttpOnly = true; //trình duyệt ko đc phép truy cập
     o.Cookie.IsEssential = true; //cookie session này cần thiết 
 });
 

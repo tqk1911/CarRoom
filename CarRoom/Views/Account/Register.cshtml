@@ -1,0 +1,48 @@
+﻿@model CarRoom.Models.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Đăng ký";
+}
+
+<div class="row justify-content-center my-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h3 class="text-center fw-bold mb-4">ĐĂNG KÝ TÀI KHOẢN</h3>
+                <form asp-action="Register" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
+                    <div class="mb-3">
+                        <label asp-for="HoTen" class="form-label fw-semibold"></label>
+                        <input asp-for="HoTen" class="form-control" placeholder="Họ tên" autofocus />
+                        <span asp-validation-for="HoTen" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-semibold"></label>
+                        <input asp-for="Email" class="form-control" placeholder="Email" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="SoDienThoai" class="form-label fw-semibold"></label>
+                        <input asp-for="SoDienThoai" class="form-control" placeholder="Số điện thoại (SĐT)" />
+                        <span asp-validation-for="SoDienThoai" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="MatKhau" class="form-label fw-semibold"></label>
+                        <input asp-for="MatKhau" class="form-control" placeholder="Mật khẩu" />
+                        <span asp-validation-for="MatKhau" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="XacNhanMatKhau" class="form-label fw-semibold"></label>
+                        <input asp-for="XacNhanMatKhau" class="form-control" placeholder="Nhập lại mật khẩu" />
+                        <span asp-validation-for="XacNhanMatKhau" class="text-danger small"></span>
+                    </div>
+                    <button type="submit" class="btn btn-dark w-100">Đăng ký</button>
+                </form>
+                <p class="text-center mt-3 mb-0">Đã có tài khoản? <a asp-action="Login" class="fw-semibold">Đăng nhập</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
