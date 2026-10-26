@@ -27,7 +27,7 @@ namespace CarRoom.Models.ViewModels
         public string NhienLieu { get; set; } = "";
         [Display(Name = "Mô tả")]
         public string? MoTa { get; set; }
-        [Display(Name = "Đang bán (hiển thị)")]
+        [Display(Name = "Trạng thái")]
         public string TrangThai { get; set; } = "Còn hàng";
 
         [Display(Name = "Xe nổi bật (hiện ở trang chủ)")]
@@ -55,5 +55,51 @@ namespace CarRoom.Models.ViewModels
     {
         public int Id { get; set; }
         public string Url { get; set; } = "";
+    }
+    public class CarFilterQuery
+    {
+        public List<int> BrandIds { get; set; } = new(); 
+        public decimal? MinPrice { get; set; }
+        public decimal? MaxPrice { get; set; }
+        public int? Year { get; set; }
+        public List<string> BodyTypes { get; set; } = new();
+        public List<string> Fuels { get; set; } = new(); 
+        public string? PriceSort { get; set; }
+        public string? YearSort { get; set; }
+        public int Page { get; set; } = 1;
+        public int PageSize { get; set; } = 9;
+    }
+    public class CarIndexViewModel
+    {
+        public List<SelectListItem> Brands { get; set; } = new();
+        public List<string> BodyTypes { get; set; } = new();
+        public List<string> Fuels { get; set; } = new();
+        public List<int> Years { get; set; } = new();
+        public CarFilterQuery Filter { get; set; } = new();
+        //public decimal PriceMax { get; set; }
+    }
+    public class CarDetailViewModel
+    {
+        public Car Car { get; set; } = null;
+        public List<Car> SimilarCars { get; set; } = new();
+    }
+    public class CarApiDto
+    {
+        [Required] public int? CarModelId { get; set; }
+        [Required, Range(1990, 2100)] public int? NamSanXuat { get; set; }
+        [Required, Range(1, 1_000_000_000_000)] public decimal? Gia { get; set; }
+        [Required, StringLength(50)] public string HopSo { get; set; } = "";
+        [Required, StringLength(50)] public string NhienLieu { get; set; } = "";
+        public string? MoTa { get; set; }
+        public bool TrangThai { get; set; } = true;
+        public bool NoiBat { get; set; }
+        public List<CarColorApiDto> Colors { get; set; } = new();
+    }
+    public class CarColorApiDto
+    {
+        public int Id { get; set; }
+        [Required, StringLength(50)] public string TenMau { get; set; } = "";
+        [Required, RegularExpression("^#[0-9A-Fa-f]{6}$")] public string MaMauHex { get; set; } = "#000000";
+        [Range(0, 10000)] public int SoLuongTon { get; set; }
     }
 }
