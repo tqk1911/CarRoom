@@ -1,0 +1,70 @@
+﻿
+@model CarRoom.Models.Brand
+
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Chỉnh sửa hãng xe";
+}
+
+<div class="container-fluid px-0">
+    <div class="mb-4">
+        <h4 class="fw-bold mb-1">Chỉnh sửa hãng xe</h4>
+        <p class="text-muted mb-0">
+            Cập nhật thông tin hãng xe #@Model.Id
+        </p>
+    </div>
+
+    <div class="card border-0 rounded-3 p-4" style="max-width: 700px;">
+        <form asp-area="Admin"
+              asp-controller="Brands"
+              asp-action="Edit"
+              asp-route-id="@Model.Id"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <input asp-for="Id" type="hidden" />
+
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="TenHang" class="form-label fw-semibold">
+                    Tên hãng xe
+                </label>
+
+                <input asp-for="TenHang"
+                       class="form-control" />
+
+                <span asp-validation-for="TenHang"
+                      class="text-danger small"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Logo" class="form-label fw-semibold">
+                    Đường dẫn logo
+                </label>
+
+                <input asp-for="Logo"
+                       class="form-control"
+                       placeholder="/images/brands/logo.png" />
+
+                <span asp-validation-for="Logo"
+                      class="text-danger small"></span>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary px-4">
+                    Lưu thay đổi
+                </button>
+
+                <a asp-area="Admin"
+                   asp-controller="Brands"
+                   asp-action="Index"
+                   class="btn btn-outline-light px-4">
+                    Hủy
+                </a>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,86 @@
+﻿
+@model CarRoom.Models.CarModel
+
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Chỉnh sửa dòng xe";
+}
+
+<div class="container-fluid px-0">
+    <div class="mb-4">
+        <h4 class="fw-bold mb-1">Chỉnh sửa dòng xe</h4>
+        <p class="text-muted mb-0">
+            Cập nhật thông tin dòng xe #@Model.Id
+        </p>
+    </div>
+
+    <div class="card border-0 rounded-3 p-4" style="max-width: 700px;">
+        <form asp-area="Admin"
+              asp-controller="CarModels"
+              asp-action="Edit"
+              asp-route-id="@Model.Id"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <input asp-for="Id" type="hidden" />
+
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="BrandId" class="form-label fw-semibold">
+                    Hãng xe
+                </label>
+
+                <select asp-for="BrandId"
+                        asp-items="ViewBag.Brands"
+                        class="form-select">
+                    <option value="0">-- Chọn hãng xe --</option>
+                </select>
+
+                <span asp-validation-for="BrandId"
+                      class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="TenDongXe" class="form-label fw-semibold">
+                    Tên dòng xe
+                </label>
+
+                <input asp-for="TenDongXe"
+                       class="form-control"
+                       maxlength="100" />
+
+                <span asp-validation-for="TenDongXe"
+                      class="text-danger small"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="LoaiThanXe" class="form-label fw-semibold">
+                    Loại thân xe
+                </label>
+
+                <input asp-for="LoaiThanXe"
+                       class="form-control"
+                       placeholder="Ví dụ: Sedan, SUV, Hatchback" />
+
+                <span asp-validation-for="LoaiThanXe"
+                      class="text-danger small"></span>
+            </div>
+
+            <div class="d-flex gap-2 flex-wrap">
+                <button type="submit" class="btn btn-primary px-4">
+                    Lưu thay đổi
+                </button>
+
+                <a asp-area="Admin"
+                   asp-controller="CarModels"
+                   asp-action="Index"
+                   class="btn btn-outline-light px-4">
+                    Hủy
+                </a>
+            </div>
+        </form>
+    </div>
+</div>

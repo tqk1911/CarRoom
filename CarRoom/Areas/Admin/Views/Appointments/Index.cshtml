@@ -1,77 +1,278 @@
-﻿@model IEnumerable<CarRoom.Models.Appointment>
+﻿
+@model IEnumerable<CarRoom.Models.Appointment>
+
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Quản lý lịch hẹn";
+
     string currentStatus = ViewBag.CurrentStatus as string ?? "";
+    string currentSearch = ViewBag.CurrentSearch as string ?? "";
+
+    int currentPage = ViewBag.CurrentPage is int p ? p : 1;
+    int totalPages = ViewBag.TotalPages is int tp ? tp : 0;
+    int totalItems = ViewBag.TotalItems is int ti ? ti : 0;
+    int pageSize = ViewBag.PageSize is int ps ? ps : 10;
+
+    int startItem = totalItems == 0 ? 0 : (currentPage - 1) * pageSize + 1;
+    int endItem = Math.Min(currentPage * pageSize, totalItems);
 }
 
-<div class="container-fluid text-white" style="background-color: #1a1e29; min-height: 85vh; padding: 24px; border-radius: 12px;">
-    <!-- Tiêu đề & Tag lọc trạng thái -->
+<style>
+    .appointment-page {
+        background-color: #1a1e29;
+        min-height: 85vh;
+        padding: 24px;
+        border-radius: 12px;
+        min-width: 0;
+    }
+
+    .appointment-table {
+        min-width: 760px;
+    }
+
+    .appointment-table td,
+    .appointment-table th {
+        vertical-align: middle;
+    }
+
+    .appointment-table-wrapper {
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .appointment-mobile-list {
+        display: none;
+    }
+
+    @@media (max-width: 991.98px) {
+        .appointment-page {
+            padding: 16px;
+            border-radius: 10px;
+        }
+
+        .appointment-page h4 {
+            font-size: 1.25rem;
+        }
+
+        .appointment-table-wrapper {
+            display: none;
+        }
+
+        .appointment-mobile-list {
+            display: block;
+        }
+
+        .appointment-mobile-card {
+            background-color: #252c3b;
+            border: 1px solid #394254;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 14px;
+            overflow-wrap: anywhere;
+        }
+
+        .appointment-mobile-label {
+            color: #9ca3af;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .appointment-mobile-value {
+            color: #f8fafc;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .appointment-mobile-row {
+            margin-bottom: 14px;
+        }
+
+        .appointment-mobile-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid #394254;
+        }
+
+        .appointment-mobile-actions form {
+            flex: 1;
+        }
+
+        .appointment-mobile-actions button {
+            width: 100%;
+        }
+
+        .appointment-page .pagination {
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+    }
+
+    @@media (max-width: 575.98px) {
+        .appointment-page {
+            padding: 12px;
+        }
+
+        .appointment-mobile-card {
+            padding: 14px;
+        }
+
+        .appointment-mobile-actions {
+            flex-direction: column;
+        }
+
+        .appointment-mobile-actions form {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="container-fluid text-white appointment-page">
+
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2 border-bottom border-secondary pb-3">
         <div>
-            <h4 class="fw-bold mb-1 text-white">Bảng danh sách lịch hẹn</h4>
-            <span class="text-secondary small">Theo dõi và cập nhật trạng thái lịch hẹn xem xe của khách hàng</span>
+            <h4 class="fw-bold mb-1 text-white">
+                Bảng danh sách lịch hẹn
+            </h4>
+
+            <span class="text-secondary small">
+                Theo dõi và cập nhật trạng thái lịch hẹn xem xe của khách hàng
+            </span>
         </div>
-        <div class="d-flex align-items-center gap-3 small">
-            <a asp-area="Admin" asp-controller="Appointments" asp-action="Index"
-               class="text-decoration-none @(string.IsNullOrEmpty(currentStatus) ? "fw-bold text-white" : "text-secondary")">Tất cả</a>
-            <a asp-area="Admin" asp-controller="Appointments" asp-action="Index" asp-route-status="Đang chờ"
-               class="text-decoration-none text-warning">
-                <span class="p-1 rounded-circle bg-warning d-inline-block me-1" style="width:8px; height:8px;"></span> Đang chờ
+
+        <div class="d-flex align-items-center gap-3 small flex-wrap">
+            <a asp-area="Admin"
+               asp-controller="Appointments"
+               asp-action="Index"
+               asp-route-search="@currentSearch"
+               class="text-decoration-none @(string.IsNullOrEmpty(currentStatus) ? "fw-bold text-white" : "text-secondary")">
+                Tất cả
             </a>
-            <a asp-area="Admin" asp-controller="Appointments" asp-action="Index" asp-route-status="Đã xác nhận"
-               class="text-decoration-none text-success">
-                <span class="p-1 rounded-circle bg-success d-inline-block me-1" style="width:8px; height:8px;"></span> Đã xác nhận
+
+            <a asp-area="Admin"
+               asp-controller="Appointments"
+               asp-action="Index"
+               asp-route-status="Đang chờ"
+               asp-route-search="@currentSearch"
+               class="text-decoration-none @(currentStatus == "Đang chờ" ? "fw-bold text-warning" : "text-warning")">
+                <span class="p-1 rounded-circle bg-warning d-inline-block me-1"
+                      style="width:8px; height:8px;"></span>
+                Đang chờ
             </a>
-            <a asp-area="Admin" asp-controller="Appointments" asp-action="Index" asp-route-status="Đã hủy"
-               class="text-decoration-none text-danger">
-                <span class="p-1 rounded-circle bg-danger d-inline-block me-1" style="width:8px; height:8px;"></span> Đã hủy
+
+            <a asp-area="Admin"
+               asp-controller="Appointments"
+               asp-action="Index"
+               asp-route-status="Đã xác nhận"
+               asp-route-search="@currentSearch"
+               class="text-decoration-none @(currentStatus == "Đã xác nhận" ? "fw-bold text-success" : "text-success")">
+                <span class="p-1 rounded-circle bg-success d-inline-block me-1"
+                      style="width:8px; height:8px;"></span>
+                Đã xác nhận
+            </a>
+
+            <a asp-area="Admin"
+               asp-controller="Appointments"
+               asp-action="Index"
+               asp-route-status="Đã hủy"
+               asp-route-search="@currentSearch"
+               class="text-decoration-none @(currentStatus == "Đã hủy" ? "fw-bold text-danger" : "text-danger")">
+                <span class="p-1 rounded-circle bg-danger d-inline-block me-1"
+                      style="width:8px; height:8px;"></span>
+                Đã hủy
             </a>
         </div>
     </div>
 
-    <!-- Thanh tìm kiếm -->
-    <div class="row mb-3">
-        <div class="col-md-5">
-            <form method="get" asp-area="Admin" asp-controller="Appointments" asp-action="Index" class="d-flex">
-                <input type="hidden" name="status" value="@currentStatus" />
+    <div class="row mb-3 g-3 align-items-center">
+        <div class="col-md-6">
+            <form method="get"
+                  asp-area="Admin"
+                  asp-controller="Appointments"
+                  asp-action="Index"
+                  class="d-flex">
+
+                <input type="hidden"
+                       name="status"
+                       value="@currentStatus" />
+
                 <div class="input-group">
-                    <input type="text" name="search" value="@ViewBag.CurrentSearch"
+                    <input type="text"
+                           name="search"
+                           value="@currentSearch"
                            class="form-control bg-dark text-white border-secondary"
                            placeholder="Tìm kiếm khách hàng, SĐT, xe..." />
-                    <button class="btn btn-outline-secondary text-white" type="submit">
-                        <i class="bi bi-search"></i> Tìm
+
+                    <button class="btn btn-outline-secondary text-white"
+                            type="submit">
+                        <i class="bi bi-search"></i>
+                        Tìm
                     </button>
                 </div>
             </form>
+        </div>
+
+        <div class="col-md-6 text-md-end">
+            <span class="text-secondary small">
+                Tổng số:
+                <strong class="text-white">@totalItems</strong>
+                lịch hẹn
+            </span>
         </div>
     </div>
 
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show bg-success text-white border-0 py-2" role="alert">
-            <i class="bi bi-check-circle me-1"></i> @TempData["SuccessMessage"]
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        <div class="alert alert-success alert-dismissible fade show bg-success text-white border-0 py-2"
+             role="alert">
+            <i class="bi bi-check-circle me-1"></i>
+            @TempData["SuccessMessage"]
+
+            <button type="button"
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="alert"
+                    aria-label="Close">
+            </button>
         </div>
     }
 
-    <!-- Bảng danh sách dữ liệu -->
-    <div class="table-responsive">
-        <table class="table table-dark table-hover align-middle mb-0" style="background-color: #212634; border-radius: 8px; overflow: hidden;">
+    <div class="table-responsive appointment-table-wrapper">
+        <table class="table table-dark table-hover align-middle mb-0 appointment-table"
+               style="background-color: #212634; border-radius: 8px; overflow: hidden;">
+
             <thead class="text-secondary small border-secondary">
                 <tr>
-                    <th scope="col" class="py-3 px-3">Tên khách</th>
-                    <th scope="col" class="py-3">Xe</th>
-                    <th scope="col" class="py-3">Ngày giờ</th>
-                    <th scope="col" class="py-3 text-center">Trạng thái</th>
-                    <th scope="col" class="py-3 text-center">Hành động</th>
+                    <th scope="col" class="py-3 px-3">
+                        Tên khách
+                    </th>
+
+                    <th scope="col" class="py-3">
+                        Xe
+                    </th>
+
+                    <th scope="col" class="py-3">
+                        Ngày giờ
+                    </th>
+
+                    <th scope="col" class="py-3 text-center">
+                        Trạng thái
+                    </th>
+
+                    <th scope="col" class="py-3 text-center">
+                        Hành động
+                    </th>
                 </tr>
             </thead>
+
             <tbody class="border-secondary">
-                @if (Model == null || !Model.Any())
+                @if (!Model.Any())
                 {
                     <tr>
-                        <td colspan="5" class="text-center py-5 text-secondary">
+                        <td colspan="5"
+                            class="text-center py-5 text-secondary">
                             Không có dữ liệu lịch hẹn phù hợp.
                         </td>
                     </tr>
@@ -83,14 +284,20 @@
                         <tr>
                             <td class="px-3 fw-medium">
                                 <div>@item.HoTenKhach</div>
-                                <small class="text-secondary">@item.SoDienThoai</small>
+
+                                <small class="text-secondary">
+                                    @item.SoDienThoai
+                                </small>
                             </td>
+
                             <td>
                                 @(item.Car?.CarModel?.TenDongXe ?? "Xe #" + item.CarId)
                             </td>
+
                             <td>
                                 @item.NgayHen.ToString("hh:mm tt | dd-MM-yyyy")
                             </td>
+
                             <td class="text-center">
                                 @if (item.TrangThai == "Đang chờ")
                                 {
@@ -111,26 +318,47 @@
                                     </span>
                                 }
                             </td>
+
                             <td class="text-center">
                                 <div class="d-inline-flex gap-2">
                                     @if (item.TrangThai == "Đang chờ")
                                     {
-                                        <form asp-area="Admin" asp-controller="Appointments" asp-action="Confirm" asp-route-id="@item.Id" method="post" class="d-inline">
+                                        <form asp-area="Admin"
+                                              asp-controller="Appointments"
+                                              asp-action="Confirm"
+                                              asp-route-id="@item.Id"
+                                              method="post"
+                                              class="d-inline">
+
                                             @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn btn-sm btn-light fw-bold text-dark px-3 py-1 shadow-sm">
+
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-light fw-bold text-dark px-3 py-1 shadow-sm">
                                                 ✓ Xác nhận
                                             </button>
                                         </form>
-                                        <form asp-area="Admin" asp-controller="Appointments" asp-action="Cancel" asp-route-id="@item.Id" method="post" class="d-inline">
+
+                                        <form asp-area="Admin"
+                                              asp-controller="Appointments"
+                                              asp-action="Cancel"
+                                              asp-route-id="@item.Id"
+                                              method="post"
+                                              class="d-inline">
+
                                             @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn btn-sm btn-dark border-secondary text-secondary px-3 py-1" onclick="return confirm('Bạn có chắc chắn muốn hủy lịch hẹn này?');">
+
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-dark border-secondary text-secondary px-3 py-1"
+                                                    onclick="return confirm('Bạn có chắc chắn muốn hủy lịch hẹn này?');">
                                                 ✕ Hủy
                                             </button>
                                         </form>
                                     }
                                     else
                                     {
-                                        <span class="text-secondary small fst-italic">Đã hoàn tất</span>
+                                        <span class="text-secondary small fst-italic">
+                                            Đã hoàn tất
+                                        </span>
                                     }
                                 </div>
                             </td>
@@ -139,5 +367,176 @@
                 }
             </tbody>
         </table>
+    </div>
+
+    <div class="appointment-mobile-list">
+        @if (!Model.Any())
+        {
+            <div class="text-center text-secondary py-5">
+                Không có dữ liệu lịch hẹn phù hợp.
+            </div>
+        }
+        else
+        {
+            @foreach (var item in Model)
+            {
+                <div class="appointment-mobile-card">
+                    <div class="appointment-mobile-row">
+                        <div class="appointment-mobile-label">
+                            Khách hàng
+                        </div>
+
+                        <div class="appointment-mobile-value fw-bold">
+                            @item.HoTenKhach
+                        </div>
+
+                        <div class="text-secondary small mt-1">
+                            @item.SoDienThoai
+                        </div>
+                    </div>
+
+                    <div class="appointment-mobile-row">
+                        <div class="appointment-mobile-label">
+                            Xe
+                        </div>
+
+                        <div class="appointment-mobile-value">
+                            @(item.Car?.CarModel?.TenDongXe ?? "Xe #" + item.CarId)
+                        </div>
+                    </div>
+
+                    <div class="appointment-mobile-row">
+                        <div class="appointment-mobile-label">
+                            Ngày giờ hẹn
+                        </div>
+
+                        <div class="appointment-mobile-value">
+                            @item.NgayHen.ToString("HH:mm | dd-MM-yyyy")
+                        </div>
+                    </div>
+
+                    <div class="appointment-mobile-row mb-0">
+                        <div class="appointment-mobile-label">
+                            Trạng thái
+                        </div>
+
+                        @if (item.TrangThai == "Đang chờ")
+                        {
+                            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">
+                                ● Đang chờ
+                            </span>
+                        }
+                        else if (item.TrangThai == "Đã xác nhận")
+                        {
+                            <span class="badge bg-success px-3 py-2 rounded-pill">
+                                ● Đã xác nhận
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger px-3 py-2 rounded-pill">
+                                ● Đã hủy
+                            </span>
+                        }
+                    </div>
+
+                    @if (item.TrangThai == "Đang chờ")
+                    {
+                        <div class="appointment-mobile-actions">
+                            <form asp-area="Admin"
+                                  asp-controller="Appointments"
+                                  asp-action="Confirm"
+                                  asp-route-id="@item.Id"
+                                  method="post">
+
+                                @Html.AntiForgeryToken()
+
+                                <button type="submit"
+                                        class="btn btn-sm btn-light fw-bold text-dark">
+                                    ✓ Xác nhận
+                                </button>
+                            </form>
+
+                            <form asp-area="Admin"
+                                  asp-controller="Appointments"
+                                  asp-action="Cancel"
+                                  asp-route-id="@item.Id"
+                                  method="post">
+
+                                @Html.AntiForgeryToken()
+
+                                <button type="submit"
+                                        class="btn btn-sm btn-outline-light"
+                                        onclick="return confirm('Bạn có chắc chắn muốn hủy lịch hẹn này?');">
+                                    ✕ Hủy
+                                </button>
+                            </form>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-secondary small fst-italic mt-3 pt-3 border-top border-secondary">
+                            Đã hoàn tất
+                        </div>
+                    }
+                </div>
+            }
+        }
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mt-4">
+        <div class="text-secondary small">
+            Hiển thị @startItem - @endItem
+            trong tổng số @totalItems lịch hẹn
+        </div>
+
+        @if (totalPages > 1)
+        {
+            <nav aria-label="Phân trang lịch hẹn">
+                <ul class="pagination pagination-sm mb-0 flex-wrap gap-1">
+
+                    <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                        <a class="page-link bg-dark text-white border-secondary"
+                           asp-area="Admin"
+                           asp-controller="Appointments"
+                           asp-action="Index"
+                           asp-route-page="@(currentPage - 1)"
+                           asp-route-status="@currentStatus"
+                           asp-route-search="@currentSearch">
+                            Trước
+                        </a>
+                    </li>
+
+                    @for (int i = 1; i <= totalPages; i++)
+                    {
+                        int pageNumber = i;
+
+                        <li class="page-item @(pageNumber == currentPage ? "active" : "")">
+                            <a class="page-link @(pageNumber == currentPage ? "bg-primary text-white border-primary" : "bg-dark text-white border-secondary")"
+                               asp-area="Admin"
+                               asp-controller="Appointments"
+                               asp-action="Index"
+                               asp-route-page="@pageNumber"
+                               asp-route-status="@currentStatus"
+                               asp-route-search="@currentSearch">
+                                @pageNumber
+                            </a>
+                        </li>
+                    }
+
+                    <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                        <a class="page-link bg-dark text-white border-secondary"
+                           asp-area="Admin"
+                           asp-controller="Appointments"
+                           asp-action="Index"
+                           asp-route-page="@(currentPage + 1)"
+                           asp-route-status="@currentStatus"
+                           asp-route-search="@currentSearch">
+                            Sau
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        }
     </div>
 </div>

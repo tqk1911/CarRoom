@@ -1,10 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿
+using System.ComponentModel.DataAnnotations;
 
 namespace CarRoom.Models.ViewModels
 {
-    public class AppointmentFormViewModel
+    public class AppointmentFormViewModel : IValidatableObject
     {
-        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Vui lòng chọn xe hợp lệ.")]
         public int CarId { get; set; }
 
         public string? TenXe { get; set; }
@@ -15,7 +16,7 @@ namespace CarRoom.Models.ViewModels
         public string HoTenKhach { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Vui lòng nhập số điện thoại.")]
-        [RegularExpression(@"^(0[3|5|7|8|9])[0-9]{8}$", ErrorMessage = "Số điện thoại không đúng định dạng Việt Nam.")]
+        [RegularExpression(@"^0[35789][0-9]{8}$", ErrorMessage = "Số điện thoại không đúng định dạng Việt Nam.")]
         [Display(Name = "Số điện thoại")]
         public string SoDienThoai { get; set; } = string.Empty;
 
@@ -26,5 +27,15 @@ namespace CarRoom.Models.ViewModels
         [StringLength(500, ErrorMessage = "Ghi chú không được dài quá 500 ký tự.")]
         [Display(Name = "Ghi chú")]
         public string? GhiChu { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (NgayHen <= DateTime.Now)
+            {
+                yield return new ValidationResult(
+                    "Ngày giờ hẹn phải lớn hơn thời gian hiện tại.",
+                    new[] { nameof(NgayHen) });
+            }
+        }
     }
 }

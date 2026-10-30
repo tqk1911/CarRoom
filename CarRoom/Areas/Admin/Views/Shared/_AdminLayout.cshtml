@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
@@ -6,73 +7,649 @@
     <title>@ViewData["Title"] - CarRoom Admin</title>
     <link rel="icon" type="image/png" href="~/images/logo.png" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
     <style>
-            body { background:#161d2b; color:#e5e9f0; }
-            .admin-sidebar { width:230px; min-height:100vh; background:#1f2736; }
-            .admin-sidebar .nav-link { color:#aab4c5; border-radius:.5rem; margin-bottom:.25rem; }
-            .admin-sidebar .nav-link:hover { background:#2a3447; color:#fff; }
-            .admin-sidebar .nav-link.active { background:#3b82f6; color:#fff; }
-            .admin-topbar { background:#1f2736; border-bottom:1px solid #2a3447; }
-            .admin-content { background:#161d2b; }
-            .admin-content .card, .admin-content .table { --bs-table-bg:#1f2736; --bs-table-color:#e5e9f0;
-                --bs-table-border-color:#2a3447; background:#1f2736; color:#e5e9f0; border-color:#2a3447; }
-            .admin-content .form-control, .admin-content .form-select { background:#161d2b; color:#e5e9f0; border-color:#2a3447; }
-            .admin-content .text-muted { color:#8a96aa !important; }
+        :root {
+            --admin-bg: #151b28;
+            --admin-sidebar-bg: #1e2635;
+            --admin-card-bg: #272f3e;
+            --admin-border: #3b465a;
+            --admin-primary: #3b82f6;
+            --admin-text: #edf2fa;
+            --admin-muted: #a5b2c6;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--admin-bg);
+            color: var(--admin-text);
+            font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        }
+
+        .admin-shell {
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        .admin-sidebar {
+            width: 250px;
+            min-width: 250px;
+            min-height: 100vh;
+            background: var(--admin-sidebar-bg);
+            border-right: 1px solid #303a4d;
+            padding: 24px 15px;
+        }
+
+        .admin-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 10px;
+            margin-bottom: 30px;
+            text-decoration: none;
+            color: #fff;
+        }
+
+        .admin-brand img {
+            width: 55px;
+            max-height: 48px;
+            object-fit: contain;
+        }
+
+        .admin-brand-text {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .admin-brand-name {
+            font-size: 17px;
+            font-weight: 750;
+            letter-spacing: .4px;
+        }
+
+        .admin-brand-subtitle {
+            font-size: 11px;
+            color: var(--admin-muted);
+        }
+
+        .admin-nav-label {
+            padding: 0 14px;
+            margin-bottom: 12px;
+            color: #8190a7;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+        }
+
+        .admin-sidebar .nav {
+            gap: 6px;
+        }
+
+        .admin-sidebar .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            min-height: 46px;
+            padding: 11px 14px;
+            color: #b8c4d6;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            transition: background .18s ease, color .18s ease, border-color .18s ease;
+        }
+
+        .admin-sidebar .nav-link:hover {
+            background: #2c374b;
+            color: #fff;
+        }
+
+        .admin-sidebar .nav-link.active {
+            background: #3479e9;
+            border-color: #488bf5;
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, .13);
+        }
+
+        .admin-sidebar .nav-link svg {
+            width: 19px;
+            height: 19px;
+            flex-shrink: 0;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .admin-main {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .admin-topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            min-height: 78px;
+            padding: 17px 28px;
+            background: #1d2534;
+            border-bottom: 1px solid #303a4d;
+        }
+
+        .admin-topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .admin-topbar-title {
+            margin: 0;
+            color: #f8fafc;
+            font-size: 19px;
+            font-weight: 700;
+        }
+
+        .admin-topbar-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 13px;
+        }
+
+        .admin-user {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            color: #e2e8f0;
+            font-size: 13px;
+        }
+
+        .admin-avatar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 34px;
+            height: 34px;
+            border: 1px solid #46536b;
+            border-radius: 50%;
+            background: #303d55;
+            color: #93c5fd;
+        }
+
+        .admin-avatar svg {
+            width: 18px;
+            height: 18px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .admin-action-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 36px;
+            padding: 8px 13px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background .18s ease, border-color .18s ease;
+        }
+
+        .admin-action-button svg {
+            width: 15px;
+            height: 15px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .admin-action-outline {
+            background: #273246;
+            color: #e2e8f0;
+            border: 1px solid #45536b;
+        }
+
+        .admin-action-outline:hover {
+            background: #35435b;
+            color: #fff;
+            border-color: #60718c;
+        }
+
+        .admin-action-danger {
+            background: #c83d4d;
+            color: #fff;
+            border: 1px solid #dc5363;
+        }
+
+        .admin-action-danger:hover {
+            background: #ad2e40;
+            color: #fff;
+        }
+
+        .admin-content {
+            flex: 1;
+            min-width: 0;
+            padding: 28px;
+            background: var(--admin-bg);
+        }
+
+        .admin-content .card,
+        .admin-content .table {
+            --bs-table-bg: #272f3e;
+            --bs-table-color: #e5e9f0;
+            --bs-table-border-color: #3b465a;
+            background: #272f3e;
+            color: #e5e9f0;
+            border-color: #3b465a;
+        }
+
+        .admin-content .form-control,
+        .admin-content .form-select {
+            background: #1c2534;
+            color: #e5e9f0;
+            border-color: #43516a;
+        }
+
+        .admin-content .form-control:focus,
+        .admin-content .form-select:focus {
+            background: #1c2534;
+            color: #fff;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, .12);
+        }
+
+        .admin-content .text-muted {
+            color: #98a7bd !important;
+        }
+
+        .dashboard-page .dashboard-stat-card {
+            border-radius: 14px;
+            border-color: #414c60;
+        }
+
+        .dashboard-page .dashboard-stat-icon {
+            width: 62px;
+            height: 62px;
+            border-radius: 13px;
+        }
+
+        .dashboard-page .dashboard-stat-card:nth-child(1) .dashboard-stat-icon {
+            background: rgba(59, 130, 246, .12);
+            color: #60a5fa;
+        }
+
+        .dashboard-page .dashboard-stat-card:nth-child(2) .dashboard-stat-icon {
+            background: rgba(167, 139, 250, .12);
+            color: #a78bfa;
+        }
+
+        .dashboard-page .dashboard-stat-card:nth-child(3) .dashboard-stat-icon {
+            background: rgba(45, 212, 191, .12);
+            color: #2dd4bf;
+        }
+
+        .dashboard-page .dashboard-stat-icon svg {
+            width: 31px;
+            height: 31px;
+        }
+
+        .dashboard-page .dashboard-chart-card {
+            border-color: #414c60;
+        }
+
+        .dashboard-page .dashboard-chart-filter {
+            border-radius: 9px;
+        }
+
+        .dashboard-page .dashboard-table-heading .btn {
+            border-radius: 8px;
+            padding: 8px 13px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .admin-mobile-menu-button {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            background: #2b374a;
+            border: 1px solid #45536b;
+            border-radius: 9px;
+            color: #fff;
+        }
+
+        .admin-mobile-menu-button svg {
+            width: 21px;
+            height: 21px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+        }
+
+        .admin-mobile-navigation {
+            display: none;
+            padding: 12px 16px 16px;
+            background: #1e2635;
+            border-bottom: 1px solid #303a4d;
+        }
+
+        .admin-mobile-navigation.open {
+            display: block;
+        }
+
+        .admin-mobile-navigation .nav-link {
+            padding: 11px 12px;
+            color: #b8c4d6;
+            border-radius: 8px;
+            text-decoration: none;
+        }
+
+        .admin-mobile-navigation .nav-link.active {
+            color: #fff;
+            background: #3479e9;
+        }
+
+        @@media (max-width: 991.98px) {
+            .admin-sidebar {
+                width: 210px;
+                min-width: 210px;
+            }
+
+            .admin-content {
+                padding: 20px;
+            }
+
+            .admin-topbar {
+                padding: 15px 20px;
+            }
+        }
+
+        @@media (max-width: 1199.98px) {
+            .admin-sidebar {
+                display: none;
+            }
+
+            .admin-mobile-menu-button {
+                display: inline-flex;
+            }
+
+            .admin-topbar {
+                min-height: 68px;
+                padding: 12px 16px;
+            }
+
+            .admin-content {
+                padding: 16px;
+            }
+
+            .admin-topbar-title {
+                font-size: 16px;
+            }
+
+            .admin-user-name {
+                display: none;
+            }
+
+            .admin-action-button {
+                padding: 8px 10px;
+            }
+        }
+
+        @@media (min-width: 1200px) {
+            .admin-mobile-navigation {
+                display: none !important;
+            }
+        }
     </style>
+
     @await RenderSectionAsync("Styles", required: false)
 </head>
+
 <body>
     @{
-        var ctrl = ViewContext.RouteData.Values["controller"]?.ToString(); //lấy tên Controller
+        var ctrl = ViewContext.RouteData.Values["controller"]?.ToString();
         string Active(string c) => ctrl == c ? "active" : "";
     }
-    <div class="d-flex">
-        <aside class="admin-sidebar p-3 d-none d-md-block"> //menu trái
-            <div class="mb-4 px-2">
-                <img src="~/images/logo.png" alt="CarRoom" height="28" />
-                <small class="text-muted">Admin Panel</small>
-            </div>
+
+    <div class="admin-shell">
+        <aside class="admin-sidebar">
+            <a class="admin-brand"
+               asp-area="Admin"
+               asp-controller="Dashboard"
+               asp-action="Index">
+                <img src="~/images/logo.png" alt="CarRoom" />
+                <span class="admin-brand-text">
+                    <span class="admin-brand-name">CarRoom</span>
+                    <span class="admin-brand-subtitle">Administration Panel</span>
+                </span>
+            </a>
+
+            <div class="admin-nav-label">Quản lý hệ thống</div>
+
             <ul class="nav flex-column">
                 @if (User.IsInRole("Admin"))
                 {
-                    <li class="nav-item"><a class="nav-link @Active("Dashboard")" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link @Active("Cars")" asp-area="Admin" asp-controller="Cars" asp-action="Index">Quản lý xe</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link @Active("Dashboard")"
+                           asp-area="Admin"
+                           asp-controller="Dashboard"
+                           asp-action="Index">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="3" y="3" width="7" height="7" rx="1" />
+                                <rect x="14" y="3" width="7" height="7" rx="1" />
+                                <rect x="3" y="14" width="7" height="7" rx="1" />
+                                <rect x="14" y="14" width="7" height="7" rx="1" />
+                            </svg>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link @Active("Cars")"
+                           asp-area="Admin"
+                           asp-controller="Cars"
+                           asp-action="Index">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M5 17H3v-6l2-5h14l2 5v6h-2" />
+                                <path d="M5 17h14M5 17v2h3v-2m8 0v2h3v-2M3 11h18M7 14h2m6 0h2" />
+                            </svg>
+                            <span>Quản lý xe</span>
+                        </a>
+                    </li>
                 }
-                <li class="nav-item"><a class="nav-link @Active("Appointments")" asp-area="Admin" asp-controller="Appointments" asp-action="Index">Quản lý lịch hẹn</a></li>
+
+                <li class="nav-item">
+                    <a class="nav-link @Active("Appointments")"
+                       asp-area="Admin"
+                       asp-controller="Appointments"
+                       asp-action="Index">
+                        <svg viewBox="0 0 24 24">
+                            <rect x="3" y="5" width="18" height="16" rx="2" />
+                            <path d="M7 3v4m10-4v4M3 10h18M8 14h3m-3 4h5" />
+                        </svg>
+                        <span>Quản lý lịch hẹn</span>
+                    </a>
+                </li>
+
                 @if (User.IsInRole("Admin"))
                 {
-                    <li class="nav-item"><a class="nav-link @Active("Categories")" asp-area="Admin" asp-controller="Categories" asp-action="Index">Quản lý danh mục</a></li>
-                    <li class="nav-item"><a class="nav-link @Active("Users")" asp-area="Admin" asp-controller="Users" asp-action="Index">Quản lý user</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link @Active("Categories")"
+                           asp-area="Admin"
+                           asp-controller="Categories"
+                           asp-action="Index">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="3" y="3" width="7" height="7" rx="1" />
+                                <rect x="14" y="3" width="7" height="7" rx="1" />
+                                <rect x="3" y="14" width="7" height="7" rx="1" />
+                                <path d="M14 17.5h7m-3.5-3.5v7" />
+                            </svg>
+                            <span>Quản lý danh mục</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link @Active("Users")"
+                           asp-area="Admin"
+                           asp-controller="Users"
+                           asp-action="Index">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="9" cy="8" r="3" />
+                                <path d="M3 20v-2a6 6 0 0 1 12 0v2M17 5a3 3 0 0 1 0 6m1 4a5 5 0 0 1 3 5" />
+                            </svg>
+                            <span>Quản lý user</span>
+                        </a>
+                    </li>
                 }
             </ul>
         </aside>
 
-        <div class="flex-grow-1">
-            <div class="admin-topbar d-flex justify-content-between align-items-center px-4 py-3">
-                <h5 class="mb-0">@ViewData["Title"]</h5>
-                <div class="d-flex align-items-center gap-3">
-                    <a class="btn btn-sm btn-outline-light" asp-area="" asp-controller="Home" asp-action="Index">Về trang web</a>
-                    <span>@User.Identity?.Name</span>
-                    <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="m-0">
-                        <button type="submit" class="btn btn-sm btn-danger">Đăng xuất</button>
+        <div class="admin-main">
+            <header class="admin-topbar">
+                <div class="admin-topbar-left">
+                    <button type="button"
+                            class="admin-mobile-menu-button"
+                            id="adminMobileMenuButton"
+                            aria-label="Mở menu"
+                            aria-controls="adminMobileNavigation"
+                            aria-expanded="false">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+
+                    <h5 class="admin-topbar-title">@ViewData["Title"]</h5>
+                </div>
+
+                <div class="admin-topbar-actions">
+                    <a class="admin-action-button admin-action-outline"
+                       asp-area=""
+                       asp-controller="Home"
+                       asp-action="Index">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M3 10.5 12 3l9 7.5V21h-7v-7h-4v7H3z" />
+                        </svg>
+                        <span>Về trang web</span>
+                    </a>
+
+                    <div class="admin-user">
+                        <span class="admin-avatar">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="8" r="4" />
+                                <path d="M4 21a8 8 0 0 1 16 0" />
+                            </svg>
+                        </span>
+                        <span class="admin-user-name">@User.Identity?.Name</span>
+                    </div>
+
+                    <form asp-area=""
+                          asp-controller="Account"
+                          asp-action="Logout"
+                          method="post"
+                          class="m-0">
+                        <button type="submit"
+                                class="admin-action-button admin-action-danger">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M10 17l5-5-5-5m5 5H3" />
+                                <path d="M12 3h6a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3h-6" />
+                            </svg>
+                            <span>Đăng xuất</span>
+                        </button>
                     </form>
                 </div>
-            </div>
-            <main class="admin-content p-4">
+            </header>
+
+            <nav class="admin-mobile-navigation"
+                 id="adminMobileNavigation"
+                 aria-label="Điều hướng Admin">
+                <ul class="nav flex-column">
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link @Active("Dashboard")"
+                               asp-area="Admin"
+                               asp-controller="Dashboard"
+                               asp-action="Index">Dashboard</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link @Active("Cars")"
+                               asp-area="Admin"
+                               asp-controller="Cars"
+                               asp-action="Index">Quản lý xe</a>
+                        </li>
+                    }
+
+                    <li class="nav-item">
+                        <a class="nav-link @Active("Appointments")"
+                           asp-area="Admin"
+                           asp-controller="Appointments"
+                           asp-action="Index">Quản lý lịch hẹn</a>
+                    </li>
+
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link @Active("Categories")"
+                               asp-area="Admin"
+                               asp-controller="Categories"
+                               asp-action="Index">Quản lý danh mục</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link @Active("Users")"
+                               asp-area="Admin"
+                               asp-controller="Users"
+                               asp-action="Index">Quản lý user</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+
+            <main class="admin-content">
                 @if (TempData["Success"] != null)
                 {
                     <div class="alert alert-success alert-dismissible fade show">
                         @TempData["Success"]
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="alert"></button>
                     </div>
                 }
+
                 @if (TempData["Error"] != null)
                 {
                     <div class="alert alert-danger alert-dismissible fade show">
                         @TempData["Error"]
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="alert"></button>
                     </div>
                 }
+
                 @RenderBody()
             </main>
         </div>
@@ -80,6 +657,28 @@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        (() => {
+            const button = document.getElementById("adminMobileMenuButton");
+            const navigation = document.getElementById("adminMobileNavigation");
+
+            if (!button || !navigation) {
+                return;
+            }
+
+            button.addEventListener("click", () => {
+                const isOpen = navigation.classList.toggle("open");
+
+                button.setAttribute("aria-expanded", String(isOpen));
+                button.setAttribute(
+                    "aria-label",
+                    isOpen ? "Đóng menu" : "Mở menu"
+                );
+            });
+        })();
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

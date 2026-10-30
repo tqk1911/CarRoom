@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CarRoom.Data;
@@ -16,14 +17,22 @@ namespace CarRoom.Areas.Admin.Controllers
             _context = context;
         }
 
-        // GET: /Admin/Appointments
-        public async Task<IActionResult> Index(string? status, string? search)
+        public async Task<IActionResult> Index(
+            string? status,
+            string? search,
+            int page = 1)
         {
+            const int pageSize = 10;
+
+            if (page < 1)
+            {
+                page = 1;
+            }
+
             var query = _context.Appointments
                 .Include(a => a.Car)
                     .ThenInclude(c => c.CarModel)
                 .AsNoTracking()
-                .OrderByDescending(a => a.NgayHen)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(status))
@@ -33,52 +42,82 @@ namespace CarRoom.Areas.Admin.Controllers
 
             if (!string.IsNullOrWhiteSpace(search))
             {
-                string kw = search.Trim().ToLower();
-                query = query.Where(a => a.HoTenKhach.ToLower().Contains(kw) ||
-                                         a.SoDienThoai.Contains(kw) ||
-                                         (a.Car != null && a.Car.CarModel != null && a.Car.CarModel.TenDongXe.ToLower().Contains(kw)));
+                string keyword = search.Trim().ToLower();
+
+                query = query.Where(a =>
+                    a.HoTenKhach.ToLower().Contains(keyword) ||
+                    a.SoDienThoai.Contains(keyword) ||
+                    (a.Car != null &&
+                     a.Car.CarModel != null &&
+                     a.Car.CarModel.TenDongXe.ToLower().Contains(keyword)));
             }
+
+            int totalItems = await query.CountAsync();
+
+            int totalPages = (int)Math.Ceiling(
+                totalItems / (double)pageSize);
+
+            if (totalPages > 0 && page > totalPages)
+            {
+                page = totalPages;
+            }
+
+            var appointments = await query
+                .OrderByDescending(a => a.NgayHen)
+                .ThenByDescending(a => a.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
 
             ViewBag.CurrentStatus = status;
             ViewBag.CurrentSearch = search;
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.TotalItems = totalItems;
+            ViewBag.PageSize = pageSize;
 
-            var appointments = await query.ToListAsync();
             return View(appointments);
         }
 
-        // POST: /Admin/Appointments/Confirm/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Confirm(int id)
         {
             var appointment = await _context.Appointments.FindAsync(id);
+
             if (appointment == null)
             {
                 return NotFound();
             }
 
             appointment.TrangThai = "Đã xác nhận";
+
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = $"Đã xác nhận lịch hẹn #{id} thành công.";
+            TempData["SuccessMessage"] =
+                $"Đã xác nhận lịch hẹn #{id} thành công.";
+
             return RedirectToAction(nameof(Index));
         }
 
-        // POST: /Admin/Appointments/Cancel/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Cancel(int id)
         {
             var appointment = await _context.Appointments.FindAsync(id);
+
             if (appointment == null)
             {
                 return NotFound();
             }
 
             appointment.TrangThai = "Đã hủy";
+
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = $"Đã hủy lịch hẹn #{id}.";
+            TempData["SuccessMessage"] =
+                $"Đã hủy lịch hẹn #{id}.";
+
             return RedirectToAction(nameof(Index));
         }
     }

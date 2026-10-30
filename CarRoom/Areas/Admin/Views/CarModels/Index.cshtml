@@ -1,0 +1,153 @@
+﻿@model IEnumerable<CarRoom.Models.CarModel>
+
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Quản lý dòng xe";
+
+    string search = ViewBag.Search as string ?? "";
+    int? brandId = ViewBag.BrandId as int?;
+}
+
+<div class="container-fluid px-0">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h4 class="fw-bold mb-1">Danh sách dòng xe</h4>
+            <p class="text-muted mb-0">
+                Quản lý các dòng xe theo từng hãng
+            </p>
+        </div>
+
+        <a asp-area="Admin"
+           asp-controller="CarModels"
+           asp-action="Create"
+           class="btn btn-primary">
+            + Thêm dòng xe
+        </a>
+    </div>
+
+    <div class="card border-0 rounded-3 p-4">
+        <form asp-area="Admin"
+              asp-controller="CarModels"
+              asp-action="Index"
+              method="get"
+              class="row g-2 mb-4">
+
+            <div class="col-md-5">
+                <input type="text"
+                       name="search"
+                       value="@search"
+                       class="form-control"
+                       placeholder="Tìm tên dòng xe, hãng xe..." />
+            </div>
+
+            <div class="col-md-3">
+                <select name="brandId"
+                        asp-items="ViewBag.Brands"
+                        class="form-select">
+                    <option value="">Tất cả hãng xe</option>
+                </select>
+            </div>
+
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">
+                    Tìm kiếm
+                </button>
+            </div>
+
+            <div class="col-auto">
+                <a asp-area="Admin"
+                   asp-controller="CarModels"
+                   asp-action="Index"
+                   class="btn btn-outline-light">
+                    Làm mới
+                </a>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Hãng xe</th>
+                        <th>Tên dòng xe</th>
+                        <th>Loại thân xe</th>
+                        <th class="text-end">Hành động</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                Không có dòng xe phù hợp.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.Id</td>
+
+                                <td>
+                                    <span class="badge bg-primary">
+                                        @(item.Brand?.TenHang ?? "Chưa xác định")
+                                    </span>
+                                </td>
+
+                                <td class="fw-semibold">
+                                    @item.TenDongXe
+                                </td>
+
+                                <td>@item.LoaiThanXe</td>
+
+                                <td class="text-end">
+                                    <div class="d-inline-flex gap-2">
+                                        <a asp-area="Admin"
+                                           asp-controller="CarModels"
+                                           asp-action="Edit"
+                                           asp-route-id="@item.Id"
+                                           class="btn btn-sm btn-outline-info">
+                                            Sửa
+                                        </a>
+
+                                        <form asp-area="Admin"
+                                              asp-controller="CarModels"
+                                              asp-action="Delete"
+                                              asp-route-id="@item.Id"
+                                              method="post"
+                                              onsubmit="return confirm('Bạn có chắc chắn muốn xóa dòng xe này?');">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-danger">
+                                                Xóa
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
+            <span class="text-muted small">
+                Tổng số: @Model.Count() dòng xe
+            </span>
+
+            <a asp-area="Admin"
+               asp-controller="Brands"
+               asp-action="Index"
+               class="btn btn-sm btn-outline-light">
+                Quản lý hãng xe
+            </a>
+        </div>
+    </div>
+</div>

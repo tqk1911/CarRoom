@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using CarRoom.Data;
 using CarRoom.Models;
@@ -16,12 +18,27 @@ namespace CarRoom.Controllers
             _context = context;
         }
 
-        // POST: /Appointment/Book
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Book(AppointmentFormViewModel model)
         {
             bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+
+            IActionResult ErrorResponse(string message)
+            {
+                if (isAjax)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message
+                    });
+                }
+
+                TempData["ErrorMessage"] = message;
+                return RedirectToAction("Details", "Cars", new { id = model.CarId });
+            }
 
             if (!ModelState.IsValid)
             {
@@ -31,36 +48,50 @@ namespace CarRoom.Controllers
                         .SelectMany(v => v.Errors)
                         .Select(e => e.ErrorMessage)
                         .ToList();
-                    return BadRequest(new { success = false, message = "Dữ liệu nhập vào chưa hợp lệ.", errors });
+
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Dữ liệu nhập vào chưa hợp lệ.",
+                        errors
+                    });
                 }
 
-                TempData["ErrorMessage"] = "Thông tin đặt lịch chưa hợp lệ. Vui lòng kiểm tra lại.";
-                return Redirect(Request.Headers["Referer"].ToString() ?? "/");
+                return ErrorResponse("Thông tin đặt lịch chưa hợp lệ. Vui lòng kiểm tra lại.");
             }
 
-            // Xử lý UserId: nếu đăng nhập thì lấy ID tài khoản, nếu vãng lai lấy ID đầu tiên trong DB để thỏa mãn NOT NULL
-            int defaultUserId = 1;
-            if (User.Identity != null && User.Identity.IsAuthenticated)
+            if (model.NgayHen <= DateTime.Now)
             {
-                var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (int.TryParse(userIdClaim, out int parsedId))
-                {
-                    defaultUserId = parsedId;
-                }
+                return ErrorResponse("Ngày giờ hẹn phải lớn hơn thời gian hiện tại.");
             }
-            else
+
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(userIdClaim, out int userId))
             {
-                var firstUser = await _context.Users.AsNoTracking().FirstOrDefaultAsync();
-                if (firstUser != null)
-                {
-                    defaultUserId = firstUser.Id;
-                }
+                return Challenge();
+            }
+
+            var userExists = await _context.Users
+                .AnyAsync(u => u.Id == userId && u.TrangThai);
+
+            if (!userExists)
+            {
+                return Forbid();
+            }
+
+            var carExists = await _context.Cars
+                .AnyAsync(c => c.Id == model.CarId);
+
+            if (!carExists)
+            {
+                return ErrorResponse("Xe bạn chọn không tồn tại.");
             }
 
             var appointment = new Appointment
             {
                 CarId = model.CarId,
-                UserId = defaultUserId,
+                UserId = userId,
                 HoTenKhach = model.HoTenKhach.Trim(),
                 SoDienThoai = model.SoDienThoai.Trim(),
                 NgayHen = model.NgayHen,
@@ -74,11 +105,17 @@ namespace CarRoom.Controllers
 
             if (isAjax)
             {
-                return Ok(new { success = true, message = "Đặt lịch hẹn xem xe thành công!" });
+                return Ok(new
+                {
+                    success = true,
+                    message = "Đặt lịch hẹn xem xe thành công!"
+                });
             }
 
-            TempData["SuccessMessage"] = "Đặt lịch hẹn thành công! Showroom sẽ liên hệ lại với bạn sớm nhất.";
-            return Redirect(Request.Headers["Referer"].ToString() ?? "/");
+            TempData["SuccessMessage"] =
+                "Đặt lịch hẹn thành công! Showroom sẽ liên hệ lại với bạn sớm nhất.";
+
+            return RedirectToAction("Details", "Cars", new { id = model.CarId });
         }
     }
 }

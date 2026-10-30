@@ -1,0 +1,130 @@
+﻿
+html {
+    max-width: 100%;
+}
+
+body {
+    min-width: 0;
+}
+
+img,
+video,
+iframe {
+    max-width: 100%;
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 991.98px) {
+    .navbar .navbar-collapse {
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
+
+    .navbar .navbar-nav {
+        gap: 4px;
+    }
+
+    .navbar .nav-link {
+        padding: 10px 12px;
+        border-radius: 8px;
+    }
+
+        .navbar .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+
+    .navbar .dropdown-menu {
+        max-width: 100%;
+    }
+
+    .navbar .btn {
+        margin-top: 8px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .navbar-brand img {
+        width: auto;
+        max-height: 48px;
+    }
+
+    main.container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .row > [class*="col-"] {
+        min-width: 0;
+    }
+
+    .card {
+        max-width: 100%;
+    }
+
+    .card-body {
+        padding: 16px;
+    }
+
+    .form-control,
+    .form-select {
+        max-width: 100%;
+    }
+
+    .modal-dialog {
+        margin: 12px;
+    }
+
+    .modal-body {
+        overflow-wrap: anywhere;
+    }
+
+    footer .container {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    footer .row {
+        row-gap: 20px;
+    }
+}
+
+@media (max-width: 575.98px) {
+    h1 {
+        font-size: 1.75rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    h3 {
+        font-size: 1.25rem;
+    }
+
+    .btn {
+        max-width: 100%;
+        white-space: normal;
+    }
+
+    .table {
+        font-size: 13px;
+    }
+
+    .pagination {
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    .alert {
+        overflow-wrap: anywhere;
+    }
+
+    footer {
+        font-size: 0.9rem;
+    }
+}
