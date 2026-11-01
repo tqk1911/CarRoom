@@ -1,0 +1,18 @@
+﻿@model CarRoom.Models.ViewModels.CarFormViewModel
+@{
+    ViewData["Title"] = "Thêm xe mới";
+}
+<h1 class="h3 mb-3">Thêm xe mới</h1>
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    <partial name="_Form" model="Model" />
+    <div class="mt-4 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Lưu xe</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a>
+    </div>
+</form>
+
+@section Scripts{
+    <partial name="_validationScriptsPartial" />
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+}

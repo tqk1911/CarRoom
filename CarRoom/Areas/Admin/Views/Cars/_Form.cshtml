@@ -1,0 +1,160 @@
+﻿@model CarRoom.Models.ViewModels.CarFormViewModel
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+<input type="hidden" asp-for="Id"/>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <label asp-for="CarModelId" class="form-label"></label>
+        <select asp-for="CarModelId" asp-items="Model.CarModels" class="form-select">
+            <option value="">--- Chọn dòng xe ---</option>
+        </select>
+        <span asp-validation-for="CarModelId" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="NamSanXuat" class="form-label"></label>
+        <input asp-for="NamSanXuat" type="number" class="form-control"/>
+        <span asp-validation-for="NamSanXuat" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Gia" class="form-label"></label>
+        <input asp-for="Gia" type="number" step="1" class="form-control"/>
+        <span asp-validation-for="Gia" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="HopSo" class="form-label"></label>
+        <input asp-for="HopSo" class="form-control" list="gearbox-list" placeholder="Ví dụ: Số tự động"/>
+        <datalist id="gearbox-list">
+            <option value="Số tự động"></option>
+            <option value="Số sàn"></option>
+            <option value="CVT"></option>
+        </datalist>
+        <span asp-validation-for="HopSo" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="NhienLieu" class="form-label"></label>
+        <input asp-for="NhienLieu" class="form-control" list="fuel-list" placeholder="Ví dụ: Xăng"/>
+        <datalist id="fuel-list">
+            <option value="Xăng"></option>
+            <option value="Dầu"></option>
+            <option value="Hybrid"></option>
+            <option value="Điện"></option>
+        </datalist>
+        <span asp-validation-for="NhienLieu" class="text-danger"></span>
+    </div>
+    <div class="col-12">
+        <label asp-for="MoTa" class="form-label"></label>
+        <textarea asp-for="MoTa" rows="8" class="form-control"></textarea>
+        <span asp-validation-for="MoTa" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="TrangThai" class="form-label"></label>
+        <select asp-for="TrangThai" class="form-select">
+            <option value="Còn hàng">Còn hàng (hiển thị trên web)</option>
+            <option value="Ngừng bán">Ngừng bán (ẩn khỏi web)</option>
+        </select>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="NoiBat" class="form-label"></label>
+        <select asp-for="NoiBat" class="form-select">
+            <option value="Không">Không</option>
+            <option value="Có">Có</option>
+        </select>
+    </div>
+</div>
+
+<hr class="my-4"/>
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <div>
+        <h2 class="h5 mb-0">Màu xe, tồn kho và ảnh</h2>
+        <div class="form-text">Mỗi màu có số lượng tồn và bộ ảnh riêng. Ảnh đầu tiên của mỗi màu là ảnh đại diện.</div>
+    </div>
+    <button type="button" id="add-color" class="btn btn-outline-primary btn-sm">Thêm màu</button>
+</div>
+
+<div id="color-list">
+    @for(int i = 0; i < Model.Colors.Count; i++)
+    {
+        var col = Model.Colors[i];
+        <div class="card mb-3 color-row">
+            <div class="card-body">
+                <input type="hidden" name="Colors.Index" value="@i"/>
+                <input type="hidden" asp-for="Colors[i].Id"/>
+                <div class="row g-3 align-items-start">
+                    <div class="col-md-4">
+                        <label asp-for="Colors[i].TenMau" class="form-label">Tên màu</label>
+                        <input asp-for="Colors[i].TenMau" class="form-control" placeholder="Ví dụ: Trắng ngọc trai"/>
+                        <span asp-validation-for="Colors[i].TenMau" class="text-danger"></span>
+                    </div>
+                    <div class="col-6 col-md-2">
+                        <label asp-for="Colors[i].MaMauHex" class="form-label">Mã màu</label>
+                        <input asp-for="Colors[i].MaMauHex" type="color" class="form-control form-control-color w-100" />
+                        <span asp-validation-for="Colors[i].MaMauHex" class="text-danger"></span>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label asp-for="Colors[i].SoLuongTon" class="form-label">Số lượng tồn</label>
+                        <input asp-for="Colors[i].SoLuongTon" type="number" min="0" class="form-control" />
+                        <span asp-validation-for="Colors[i].SoLuongTon" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3 text-md-end">
+                        <button type="button" class="btn btn-outline-danger btn-sm remove-color">Xóa màu này</button>
+                    </div>
+
+                    @if(col.ExistingImages.Count > 0)
+                    {
+                        <div class="col-12">
+                            <div class="form-label mb-1">Ảnh hiện có (tick để xóa)</div>
+                            <div class="d-flex flex-wrap gap-3">
+                                @foreach(var img in col.ExistingImages)
+                                {
+                                    <label class="text-center small">
+                                        <img src="@img.Url" alt="Ảnh màu @col.TenMau" class="img-thumbnail d-block mb-1"
+                                            style="width:110px;height:80px;object-fit:cover"/>
+                                        <input type="checkbox" class="form-check-input" name="Colors[@i].RemoveImageIds" value="@img.Id"/> Xóa
+                                    </label>
+                                }
+                            </div>
+                        </div>
+                    }
+                    <div class="col-12">
+                        <label class="form-label" for="Colors_@(i)__NewImages">Thêm ảnh (chọn được nhiều ảnh, jpg/jpeg/png/webp/jfif, tối đa 5MB mỗi ảnh)</label>
+                        <input id="Colors_@(i)__NewImages" type="file" name="Colors[@i].NewImages" class="form-control" multiple accept=".jpg,.jpeg,.png,.webp,.jfif"/>
+                        <span asp-validation-for="Colors[i].NewImages" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@* Mẫu cho màu mới. site.js thay __i__ bằng số thứ tự duy nhất *@
+ <template id="color-template">
+     <div class="card mb-3 color-row">
+         <div class="card-body">
+             <input type="hidden" name="Colors.Index" value="__i__"/>
+             <input type="hidden" name="Colors[__i__].Id" value="0"/>
+             <div class="row g-3 align-items-start">
+                 <div class="col-md-4">
+                     <label class="form-label">Tên màu</label>
+                     <input name="Colors[__i__].TenMau" class="form-control" placeholder="Ví dụ: Đen" required maxlength="50"/>
+                 </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label">Mã màu</label>
+                    <input name="Colors[__i__].MaMauHex" type="color" value="#ffffff" class="form-control form-control-color w-100"/>
+                </div>
+                <div class="col-6 col-md-3">
+                    <label class="form-label">Số lượng tồn</label>
+                    <input name="Colors[__i__].SoLuongTon" type="number" min="0" value="0" class="form-control" required/>
+                </div>
+                <div class="col-md-3 text-md-end">
+                    <button type="button" class="btn btn-outline-danger btn-sm remove-color">Xóa màu này</button>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Thêm ảnh (chọn được nhiều ảnh, jpg/jpeg/png/webp/jfif, tối đa 5MB mỗi ảnh)</label>
+                    <input type="file" name="Colors[__i__].NewImages" class="form-control" multiple accept=".jpg,.jpeg,.png,.webp,.jfif"/>
+                </div>
+             </div>
+         </div>
+     </div>
+ </template>
