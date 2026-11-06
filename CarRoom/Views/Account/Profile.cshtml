@@ -1,0 +1,115 @@
+﻿@using CarRoom.Models
+@using CarRoom.Models.ViewModels
+@model ProfileViewModel
+@{
+    ViewData["Title"] = "Trang cá nhân";
+
+    string Ten(Car? c) => c == null ? "(xe đã bị xóa)"
+        : $"{c.CarModel?.Brand?.TenHang} {c.CarModel?.TenDongXe} {c.NamSanXuat}";
+
+    string? Anh(Car c) => c.Colors.SelectMany(x => x.CarImages)
+        .OrderByDescending(i => i.LaAnhChinh).Select(i => i.DuongDanAnh).FirstOrDefault();
+
+    string Badge(string s) => s switch
+    {
+        "Đã xác nhận" => "text-bg-success",
+        "Đã hủy" => "text-bg-danger",
+        "Hoàn thành" => "text-bg-info",
+        _ => "text-bg-warning"
+    };
+}
+
+<h2 class="fw-bold mb-3">Trang cá nhân</h2>
+
+@if (TempData["Msg"] != null)
+{
+    <div class="alert alert-success">@TempData["Msg"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<ul class="nav nav-tabs" role="tablist">
+    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-info" type="button">Thông tin tài khoản</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-appt" type="button">Lịch hẹn của tôi</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-fav" type="button">Xe yêu thích</button></li>
+</ul>
+
+<div class="tab-content border border-top-0 rounded-bottom p-3 p-md-4">
+
+    <div class="tab-pane fade show active" id="tab-info">
+        <form asp-action="Profile" method="post" class="col-12 col-md-8 col-lg-5 p-0">
+            <div class="mb-3">
+                <label class="form-label">Họ tên</label>
+                <input name="HoTen" value="@Model.HoTen" class="form-control" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input value="@Model.Email" class="form-control" disabled />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Số điện thoại</label>
+                <input name="SoDienThoai" value="@Model.SoDienThoai" class="form-control" />
+            </div>
+            <button class="btn btn-dark">Lưu thay đổi</button>
+        </form>
+    </div>
+
+    <div class="tab-pane fade" id="tab-appt">
+        @if (!Model.Appointments.Any())
+        {
+            <p class="text-secondary mb-0">Bạn chưa đặt lịch hẹn nào.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead><tr><th>Xe</th><th>Ngày giờ hẹn</th><th>Trạng thái</th></tr></thead>
+                    <tbody>
+                        @foreach (var a in Model.Appointments)
+                        {
+                            <tr>
+                                <td>@Ten(a.Car)</td>
+                                <td>@a.NgayHen.ToString("HH:mm dd/MM/yyyy")</td>
+                                <td><span class="badge @Badge(a.TrangThai)">@a.TrangThai</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+    <div class="tab-pane fade" id="tab-fav">
+        @if (!Model.Favorites.Any())
+        {
+            <p class="text-secondary mb-0">Bạn chưa lưu xe yêu thích nào.</p>
+        }
+        else
+        {
+            <div class="row g-3">
+                @foreach (var f in Model.Favorites.Where(x => x.Car != null))
+                {
+                    var img = Anh(f.Car!);
+                    <div class="col-12 col-sm-6 col-lg-4">
+                        <a class="card h-100 text-decoration-none" asp-controller="Cars" asp-action="Detail" asp-route-id="@f.CarId">
+                            @if (img != null)
+                            {
+                                <img src="@img" class="card-img-top" style="height:160px;object-fit:cover" alt="@Ten(f.Car)" />
+                            }
+                            else
+                            {
+                                <div class="bg-body-secondary d-flex align-items-center justify-content-center text-secondary" style="height:160px">Chưa có ảnh</div>
+                            }
+                            <div class="card-body">
+                                <div class="fw-semibold">@Ten(f.Car)</div>
+                                <div class="text-primary fw-bold">@f.Car!.Gia.ToString("N0") VND</div>
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
