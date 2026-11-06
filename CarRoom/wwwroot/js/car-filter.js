@@ -129,17 +129,17 @@
             .then(function (data) {
                 listEl.innerHTML = data.items.map(cardHtml).join('');
                 pagerEl.innerHTML = pagerHtml(data.page, data.totalPages);
-                countEl.textContent = data.totalItems + ' xe';
+                if (countEl) countEl.textContent = data.totalItems + ' xe';
                 emptyEl.textContent = 'Không có xe nào khớp bộ lọc. Hãy nới khoảng giá hoặc bấm "Xóa bộ lọc".';
                 emptyEl.classList.toggle('d-none', data.items.length > 0);
                 loadingEl.classList.add('d-none');
             })
             .catch(function (err) {
-                if (err.name === 'AbortError') return; // request cũ bị hủy, bỏ qua
+                if (err.name === 'AbortError') return;
                 loadingEl.classList.add('d-none');
                 listEl.innerHTML = '';
                 pagerEl.innerHTML = '';
-                countEl.textContent = '';
+                if (countEl) countEl.textContent = '';
                 emptyEl.textContent = 'Không tải được danh sách xe. Vui lòng thử lại sau.';
                 emptyEl.classList.remove('d-none');
                 console.error(err);

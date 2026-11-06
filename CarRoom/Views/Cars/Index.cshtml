@@ -88,15 +88,15 @@
 
         <section class="col-lg-9">
 
-            <div class="d-flex align-items-center justify-content-end mb-3 w-100">
+            <div class="d-flex align-items-center justify-content-between mb-3 w-100">
+                <span id="result-count" class="text-muted"></span>
+
                 <div class="card">
                     <div class="card-body d-flex flex-wrap align-items-center gap-2 py-2 px-3">
 
                         <span class="fw-semibold text-nowrap">Sắp xếp</span>
 
-                        <label for="f-sort-price" class="visually-hidden">
-                            Sắp xếp theo giá
-                        </label>
+                        <label for="f-sort-price" class="visually-hidden">Sắp xếp theo giá</label>
                         <select id="f-sort-price"
                                 class="form-select form-select-sm"
                                 style="width: 158px;">
@@ -105,9 +105,7 @@
                             <option value="desc" selected="@(priceSort == "desc")">Giá giảm dần</option>
                         </select>
 
-                        <label for="f-sort-year" class="visually-hidden">
-                            Sắp xếp theo năm sản xuất
-                        </label>
+                        <label for="f-sort-year" class="visually-hidden">Sắp xếp theo năm sản xuất</label>
                         <select id="f-sort-year"
                                 class="form-select form-select-sm"
                                 style="width: 120px;">
