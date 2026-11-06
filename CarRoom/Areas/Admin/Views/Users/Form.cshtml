@@ -1,0 +1,66 @@
+﻿@using System.Security.Claims
+@using CarRoom.Models.ViewModels
+@model UserFormViewModel
+@{
+    bool isEdit = Model.Id != 0;
+    bool isMe = isEdit && User.FindFirstValue(ClaimTypes.NameIdentifier) == Model.Id.ToString();
+    ViewData["Title"] = isEdit ? "Sửa tài khoản" : "Thêm tài khoản";
+}
+
+<div class="row">
+    <div class="col-12 col-md-8 col-lg-5">
+        <form asp-action="@(isEdit ? "Edit" : "Create")" method="post">
+            <input type="hidden" asp-for="Id" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="HoTen" class="form-label">Họ tên</label>
+                <input asp-for="HoTen" class="form-control" />
+                <span asp-validation-for="HoTen" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label">Email</label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="SoDienThoai" class="form-label">Số điện thoại</label>
+                <input asp-for="SoDienThoai" class="form-control" />
+                <span asp-validation-for="SoDienThoai" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="VaiTro" class="form-label">Vai trò</label>
+                @if (isMe)
+                {
+                    <input type="hidden" asp-for="VaiTro" />
+                    <input class="form-control" value="Quản trị viên (bạn không thể tự đổi vai trò)" disabled />
+                }
+                else
+                {
+                    <select asp-for="VaiTro" class="form-select">
+                        <option value="Customer">Khách hàng</option>
+                        <option value="Staff">Nhân viên</option>
+                        <option value="Admin">Quản trị viên</option>
+                    </select>
+                }
+                <span asp-validation-for="VaiTro" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="MatKhau" class="form-label">
+                    @(isEdit ? "Mật khẩu mới (bỏ trống nếu không đổi)" : "Mật khẩu")
+                </label>
+                <input asp-for="MatKhau" type="password" class="form-control" autocomplete="new-password" />
+                <span asp-validation-for="MatKhau" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Lưu</button>
+            <a asp-action="Index" asp-route-role="@Model.VaiTro" class="btn btn-outline-secondary">Hủy</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
