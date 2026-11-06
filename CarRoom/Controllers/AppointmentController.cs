@@ -37,7 +37,7 @@ namespace CarRoom.Controllers
                 }
 
                 TempData["ErrorMessage"] = message;
-                return RedirectToAction("Details", "Cars", new { id = model.CarId });
+                return RedirectToAction("Detail", "Cars", new { id = model.CarId });
             }
 
             if (!ModelState.IsValid)
@@ -115,7 +115,7 @@ namespace CarRoom.Controllers
             TempData["SuccessMessage"] =
                 "Đặt lịch hẹn thành công! Showroom sẽ liên hệ lại với bạn sớm nhất.";
 
-            return RedirectToAction("Details", "Cars", new { id = model.CarId });
+            return RedirectToAction("Detail", "Cars", new { id = model.CarId });
         }
     }
 }
