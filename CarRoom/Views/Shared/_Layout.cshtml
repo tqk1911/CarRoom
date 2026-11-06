@@ -1,5 +1,4 @@
-﻿
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
@@ -11,6 +10,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/CarRoom.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/responsive.css" asp-append-version="true" />
+    @* Nếu view có section Styles thì render CSS vào đây *@
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
@@ -42,6 +42,7 @@
                     </ul>
 
                     <ul class="navbar-nav align-items-lg-center">
+                        @* Kiểm tra đã đăng nhập chưa *@
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item dropdown">
@@ -49,6 +50,7 @@
                                    href="#"
                                    data-bs-toggle="dropdown"
                                    aria-expanded="false">
+                                    @* Hiển thị tên người dùng *@
                                     @User.Identity.Name
                                 </a>
 
@@ -156,6 +158,11 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @* Chat widget *@
+    <partial name="_ChatWidget" />
+    <script src="~/js/chat-widget.js" asp-append-version="true"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
