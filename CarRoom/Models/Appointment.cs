@@ -9,7 +9,7 @@ namespace CarRoom.Models
         public int CarId { get; set; }
         [ForeignKey(nameof(CarId))]
         public Car? Car { get; set; }
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
         [ForeignKey(nameof(UserId))]
         public User? User { get; set; }
 
