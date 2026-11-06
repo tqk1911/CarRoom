@@ -1,0 +1,27 @@
+﻿@using CarRoom.Models
+@model Brand
+@{
+    bool isEdit = Model.Id != 0;
+    ViewData["Title"] = isEdit ? "Sửa hãng xe" : "Thêm hãng xe";
+}
+
+<div class="row">
+    <div class="col-12 col-md-8 col-lg-5">
+        <form asp-action="@(isEdit ? "EditBrand" : "CreateBrand")" method="post">
+            <input type="hidden" asp-for="Id" />
+
+            <div class="mb-3">
+                <label asp-for="TenHang" class="form-label">Tên hãng xe</label>
+                <input asp-for="TenHang" class="form-control" />
+                <span asp-validation-for="TenHang" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Lưu</button>
+            <a asp-action="Index" asp-route-brandId="@(isEdit ? Model.Id : null)" class="btn btn-outline-secondary">Hủy</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

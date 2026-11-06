@@ -1,0 +1,43 @@
+﻿@using CarRoom.Models
+@using CarRoom.Areas.Admin.Controllers
+@model CarModel
+@{
+    bool isEdit = Model.Id != 0;
+    ViewData["Title"] = isEdit ? "Sửa dòng xe" : "Thêm dòng xe";
+    var brands = ViewBag.Brands as List<Brand> ?? new();
+}
+
+<div class="row">
+    <div class="col-12 col-md-8 col-lg-5">
+        <form asp-action="@(isEdit ? "EditModel" : "CreateModel")" method="post">
+            <input type="hidden" asp-for="Id" />
+
+            <div class="mb-3">
+                <label asp-for="BrandId" class="form-label">Hãng xe</label>
+                <select asp-for="BrandId" asp-items="@(new SelectList(brands, "Id", "TenHang"))" class="form-select">
+                    <option value="">-- Chọn hãng --</option>
+                </select>
+                <span asp-validation-for="BrandId" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="TenDongXe" class="form-label">Tên dòng xe</label>
+                <input asp-for="TenDongXe" class="form-control" />
+                <span asp-validation-for="TenDongXe" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="LoaiThanXe" class="form-label">Loại thân xe</label>
+                <select asp-for="LoaiThanXe" asp-items="@(new SelectList(CategoriesController.BodyTypes))" class="form-select"></select>
+                <span asp-validation-for="LoaiThanXe" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Lưu</button>
+            <a asp-action="Index" asp-route-brandId="@(Model.BrandId == 0 ? null : Model.BrandId)" class="btn btn-outline-secondary">Hủy</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
