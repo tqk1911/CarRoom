@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
@@ -10,7 +11,6 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/CarRoom.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/responsive.css" asp-append-version="true" />
-    @* Nếu view có section Styles thì render CSS vào đây *@
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
@@ -34,15 +34,26 @@
                 <div class="collapse navbar-collapse" id="mainNav">
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">Trang chủ</a>
+                            <a class="nav-link"
+                               asp-controller="Home"
+                               asp-action="Index">Trang chủ</a>
                         </li>
+
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Cars" asp-action="Index">Xe</a>
+                            <a class="nav-link"
+                               asp-controller="Cars"
+                               asp-action="Index">Xe</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-area=""
+                               asp-controller="Favorite"
+                               asp-action="Index">Xe yêu thích</a>
                         </li>
                     </ul>
 
                     <ul class="navbar-nav align-items-lg-center">
-                        @* Kiểm tra đã đăng nhập chưa *@
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item dropdown">
@@ -50,7 +61,6 @@
                                    href="#"
                                    data-bs-toggle="dropdown"
                                    aria-expanded="false">
-                                    @* Hiển thị tên người dùng *@
                                     @User.Identity.Name
                                 </a>
 
@@ -102,6 +112,7 @@
                                    asp-controller="Account"
                                    asp-action="Login">Đăng nhập</a>
                             </li>
+
                             <li class="nav-item">
                                 <a class="btn btn-light btn-sm ms-lg-2"
                                    asp-controller="Account"
@@ -159,7 +170,6 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
-    @* Chat widget *@
     <partial name="_ChatWidget" />
     <script src="~/js/chat-widget.js" asp-append-version="true"></script>
 

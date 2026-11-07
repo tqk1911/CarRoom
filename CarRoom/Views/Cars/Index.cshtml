@@ -1,4 +1,6 @@
-﻿@model CarRoom.Models.ViewModels.CarIndexViewModel
+﻿
+@model CarRoom.Models.ViewModels.CarIndexViewModel
+
 @{
     ViewData["Title"] = "Danh sách xe";
     var f = Model.Filter;
@@ -11,8 +13,15 @@
         ("1000000000-2000000000", "1 tỷ - 2 tỷ"),
         ("2000000000-", "Trên 2 tỷ")
     };
-    var currentPrice = (f.MinPrice.HasValue || f.MaxPrice.HasValue) ? $"{f.MinPrice:0}-{f.MaxPrice:0}" : "";
-    var priceSort = (f.PriceSort == "asc" || f.PriceSort == "desc") ? f.PriceSort : "";
+
+    var currentPrice = (f.MinPrice.HasValue || f.MaxPrice.HasValue)
+        ? $"{f.MinPrice:0}-{f.MaxPrice:0}"
+        : "";
+
+    var priceSort = (f.PriceSort == "asc" || f.PriceSort == "desc")
+        ? f.PriceSort
+        : "";
+
     var yearSort = f.YearSort == "oldest" ? "oldest" : "newest";
 }
 
@@ -22,116 +31,186 @@
     <div class="row g-4">
         <aside class="col-lg-3">
             <form id="filter-form" class="card card-body" autocomplete="off">
+                @Html.AntiForgeryToken()
+
                 <h2 class="h6 mb-3">Bộ lọc</h2>
+
                 <fieldset class="mb-4">
                     <legend class="form-label fs-6 fw-semibold">Hãng</legend>
+
                     @foreach (var b in Model.Brands)
                     {
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="brandIds" value="@b.Value"
-                                   id="brand-@b.Value" checked="@f.BrandIds.Contains(int.Parse(b.Value))" />
-                            <label class="form-check-label" for="brand-@b.Value">@b.Text</label>
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   name="brandIds"
+                                   value="@b.Value"
+                                   id="brand-@b.Value"
+                                   checked="@f.BrandIds.Contains(int.Parse(b.Value))" />
+
+                            <label class="form-check-label" for="brand-@b.Value">
+                                @b.Text
+                            </label>
                         </div>
                     }
                 </fieldset>
 
                 <div class="mb-4">
-                    <label for="f-price" class="form-label fw-semibold">Khoảng giá</label>
+                    <label for="f-price" class="form-label fw-semibold">
+                        Khoảng giá
+                    </label>
+
                     <select id="f-price" name="price" class="form-select">
                         @foreach (var p in priceRanges)
                         {
-                            <option value="@p.Value" selected="@(p.Value == currentPrice)">@p.Text</option>
+                            <option value="@p.Value" selected="@(p.Value == currentPrice)">
+                                @p.Text
+                            </option>
                         }
                     </select>
                 </div>
 
                 <div class="mb-4">
-                    <label for="f-year" class="form-label fw-semibold">Năm sản xuất</label>
+                    <label for="f-year" class="form-label fw-semibold">
+                        Năm sản xuất
+                    </label>
+
                     <select id="f-year" name="year" class="form-select">
                         <option value="">Tất cả năm</option>
+
                         @foreach (var y in Model.Years)
                         {
-                            <option value="@y" selected="@(f.Year == y)">@y</option>
+                            <option value="@y" selected="@(f.Year == y)">
+                                @y
+                            </option>
                         }
                     </select>
                 </div>
 
                 <fieldset class="mb-4">
-                    <legend class="form-label fs-6 fw-semibold">Loại thân xe</legend>
+                    <legend class="form-label fs-6 fw-semibold">
+                        Loại thân xe
+                    </legend>
+
                     @for (int i = 0; i < Model.BodyTypes.Count; i++)
                     {
                         var t = Model.BodyTypes[i];
+
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="bodyTypes" value="@t"
-                                   id="body-@i" checked="@f.BodyTypes.Contains(t)" />
-                            <label class="form-check-label" for="body-@i">@t</label>
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   name="bodyTypes"
+                                   value="@t"
+                                   id="body-@i"
+                                   checked="@f.BodyTypes.Contains(t)" />
+
+                            <label class="form-check-label" for="body-@i">
+                                @t
+                            </label>
                         </div>
                     }
                 </fieldset>
 
                 <fieldset class="mb-4">
-                    <legend class="form-label fs-6 fw-semibold">Nhiên liệu</legend>
+                    <legend class="form-label fs-6 fw-semibold">
+                        Nhiên liệu
+                    </legend>
+
                     @for (int i = 0; i < Model.Fuels.Count; i++)
                     {
                         var fu = Model.Fuels[i];
+
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="fuels" value="@fu"
-                                   id="fuel-@i" checked="@f.Fuels.Contains(fu)" />
-                            <label class="form-check-label" for="fuel-@i">@fu</label>
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   name="fuels"
+                                   value="@fu"
+                                   id="fuel-@i"
+                                   checked="@f.Fuels.Contains(fu)" />
+
+                            <label class="form-check-label" for="fuel-@i">
+                                @fu
+                            </label>
                         </div>
                     }
                 </fieldset>
 
-                <button type="button" id="filter-reset" class="btn btn-outline-secondary w-100">Xóa bộ lọc</button>
+                <button type="button"
+                        id="filter-reset"
+                        class="btn btn-outline-secondary w-100">
+                    Xóa bộ lọc
+                </button>
             </form>
         </aside>
 
         <section class="col-lg-9">
-
             <div class="d-flex align-items-center justify-content-between mb-3 w-100">
                 <span id="result-count" class="text-muted"></span>
 
                 <div class="card">
                     <div class="card-body d-flex flex-wrap align-items-center gap-2 py-2 px-3">
+                        <span class="fw-semibold text-nowrap">
+                            Sắp xếp
+                        </span>
 
-                        <span class="fw-semibold text-nowrap">Sắp xếp</span>
+                        <label for="f-sort-price" class="visually-hidden">
+                            Sắp xếp theo giá
+                        </label>
 
-                        <label for="f-sort-price" class="visually-hidden">Sắp xếp theo giá</label>
                         <select id="f-sort-price"
                                 class="form-select form-select-sm"
-                                style="width: 158px;">
-                            <option value="" selected="@(priceSort == "")">Giá tăng/giảm</option>
-                            <option value="asc" selected="@(priceSort == "asc")">Giá tăng dần</option>
-                            <option value="desc" selected="@(priceSort == "desc")">Giá giảm dần</option>
+                                style="width:158px;">
+                            <option value="" selected="@(priceSort == "")">
+                                Giá tăng/giảm
+                            </option>
+                            <option value="asc" selected="@(priceSort == "asc")">
+                                Giá tăng dần
+                            </option>
+                            <option value="desc" selected="@(priceSort == "desc")">
+                                Giá giảm dần
+                            </option>
                         </select>
 
-                        <label for="f-sort-year" class="visually-hidden">Sắp xếp theo năm sản xuất</label>
+                        <label for="f-sort-year" class="visually-hidden">
+                            Sắp xếp theo năm sản xuất
+                        </label>
+
                         <select id="f-sort-year"
                                 class="form-select form-select-sm"
-                                style="width: 120px;">
-                            <option value="newest" selected="@(yearSort == "newest")">Mới nhất</option>
-                            <option value="oldest" selected="@(yearSort == "oldest")">Cũ nhất</option>
+                                style="width:120px;">
+                            <option value="newest" selected="@(yearSort == "newest")">
+                                Mới nhất
+                            </option>
+                            <option value="oldest" selected="@(yearSort == "oldest")">
+                                Cũ nhất
+                            </option>
                         </select>
-
                     </div>
                 </div>
             </div>
 
             <div id="car-loading" class="text-center py-5 d-none">
-                <div class="spinner-border" role="status"><span class="visually-hidden">Đang tải...</span></div>
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Đang tải...</span>
+                </div>
             </div>
 
-            <div id="car-list" class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xxl-4 g-3"></div>
+            <div id="car-list"
+                 class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xxl-4 g-3">
+            </div>
 
             <div id="car-empty" class="alert alert-light border d-none">
                 Không có xe nào khớp bộ lọc. Hãy nới khoảng giá hoặc bấm "Xóa bộ lọc".
             </div>
 
-            <nav id="car-pagination" class="mt-4" aria-label="Phân trang danh sách xe"></nav>
+            <nav id="car-pagination"
+                 class="mt-4"
+                 aria-label="Phân trang danh sách xe">
+            </nav>
         </section>
     </div>
 </div>
 
-@section Scripts{
+@section Scripts {
     <script src="~/js/car-filter.js" asp-append-version="true"></script>
 }

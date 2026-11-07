@@ -46,11 +46,117 @@ namespace CarRoom.Controllers
             var cars = await _context.Cars
                 .Include(c => c.CarModel)
                     .ThenInclude(m => m.Brand)
+                .Include(c => c.Colors)
+                    .ThenInclude(col => col.CarImages)
                 .AsNoTracking()
                 .Where(c => carIds.Contains(c.Id))
                 .ToListAsync();
 
             return View(cars);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Status()
+        {
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                var userId = GetUserId();
+
+                if (userId == null)
+                {
+                    return Unauthorized();
+                }
+
+                var carIds = await _context.Favorites
+                    .AsNoTracking()
+                    .Where(f => f.UserId == userId.Value)
+                    .Select(f => f.CarId)
+                    .ToListAsync();
+
+                return Json(new { carIds });
+            }
+
+            return Json(new { carIds = GetSessionFavorites() });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleAjax(int carId)
+        {
+            if (carId <= 0)
+            {
+                return BadRequest(new { message = "Mã xe không hợp lệ." });
+            }
+
+            var carExists = await _context.Cars
+                .AnyAsync(c => c.Id == carId);
+
+            if (!carExists)
+            {
+                return NotFound(new { message = "Không tìm thấy xe." });
+            }
+
+            bool isFavorite;
+
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                var userId = GetUserId();
+
+                if (userId == null)
+                {
+                    return Unauthorized(new { message = "Không xác định được tài khoản." });
+                }
+
+                var favorite = await _context.Favorites
+                    .FirstOrDefaultAsync(f =>
+                        f.UserId == userId.Value && f.CarId == carId);
+
+                if (favorite == null)
+                {
+                    _context.Favorites.Add(new Favorite
+                    {
+                        UserId = userId.Value,
+                        CarId = carId,
+                        NgayThem = DateTime.Now
+                    });
+
+                    isFavorite = true;
+                }
+                else
+                {
+                    _context.Favorites.Remove(favorite);
+                    isFavorite = false;
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                var favorites = GetSessionFavorites();
+
+                if (favorites.Contains(carId))
+                {
+                    favorites.Remove(carId);
+                    isFavorite = false;
+                }
+                else
+                {
+                    favorites.Add(carId);
+                    isFavorite = true;
+                }
+
+                SaveSessionFavorites(favorites);
+            }
+
+            return Json(new
+            {
+                success = true,
+                carId,
+                isFavorite,
+                message = isFavorite
+                    ? "Đã thêm xe vào danh sách yêu thích."
+                    : "Đã bỏ xe khỏi danh sách yêu thích."
+            });
         }
 
         [HttpPost]

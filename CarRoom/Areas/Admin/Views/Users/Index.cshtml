@@ -1,4 +1,5 @@
-﻿@using System.Security.Claims
+﻿
+@using System.Security.Claims
 @using CarRoom.Models
 @using CarRoom.Models.ViewModels
 @model PagedResult<User>
@@ -11,101 +12,369 @@
     ViewData["Title"] = "Quản lý " + Title(role);
 }
 
-@if (TempData["Msg"] != null)
-{
-    <div class="alert alert-success">@TempData["Msg"]</div>
-}
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
-}
+<style>
+    .user-admin-page {
+        min-width: 0;
+    }
 
-<div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
-    <ul class="nav nav-pills">
-        <li class="nav-item">
-            <a class="nav-link @(role == "Customer" ? "active" : "")" asp-action="Index" asp-route-role="Customer">Khách hàng</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link @(role == "Staff" ? "active" : "")" asp-action="Index" asp-route-role="Staff">Nhân viên</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link @(role == "Admin" ? "active" : "")" asp-action="Index" asp-route-role="Admin">Quản trị viên</a>
-        </li>
-    </ul>
-    <a class="btn btn-primary" asp-action="Create" asp-route-role="@role">+ Thêm @Title(role)</a>
-</div>
+    .user-admin-tabs {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
 
-<form method="get" class="row g-2 mb-3">
-    <input type="hidden" name="role" value="@role" />
-    <div class="col-12 col-md-6 col-lg-4">
-        <input name="q" value="@q" class="form-control" placeholder="Tìm theo tên hoặc email..." />
+    .user-admin-table-wrapper {
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .user-admin-table {
+        min-width: 760px;
+    }
+
+    .user-admin-mobile-list {
+        display: none;
+    }
+
+    @@media (max-width: 991.98px) {
+        .user-admin-table-wrapper {
+            display: none;
+        }
+
+        .user-admin-mobile-list {
+            display: block;
+        }
+
+        .user-admin-mobile-card {
+            background-color: #252c3b;
+            border: 1px solid #394254;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 14px;
+            color: #f8fafc;
+            overflow-wrap: anywhere;
+        }
+
+        .user-admin-mobile-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .user-admin-mobile-label {
+            color: #9ca3af;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .user-admin-mobile-value {
+            color: #f8fafc;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .user-admin-mobile-row {
+            margin-bottom: 14px;
+        }
+
+        .user-admin-mobile-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding-top: 14px;
+            margin-top: 14px;
+            border-top: 1px solid #394254;
+        }
+
+        .user-admin-mobile-actions > a,
+        .user-admin-mobile-actions > form {
+            flex: 1;
+        }
+
+        .user-admin-mobile-actions form button {
+            width: 100%;
+        }
+
+        .user-admin-page .pagination {
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+    }
+
+    @@media (max-width: 575.98px) {
+        .user-admin-mobile-card {
+            padding: 14px;
+        }
+
+        .user-admin-tabs .nav-link {
+            padding: 8px 10px;
+            font-size: 13px;
+        }
+
+        .user-admin-mobile-actions > a,
+        .user-admin-mobile-actions > form {
+            min-width: 0;
+        }
+    }
+</style>
+
+<div class="user-admin-page">
+    @if (TempData["Msg"] != null)
+    {
+        <div class="alert alert-success">@TempData["Msg"]</div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
+        <ul class="nav nav-pills user-admin-tabs">
+            <li class="nav-item">
+                <a class="nav-link @(role == "Customer" ? "active" : "")"
+                   asp-action="Index"
+                   asp-route-role="Customer">
+                    Khách hàng
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link @(role == "Staff" ? "active" : "")"
+                   asp-action="Index"
+                   asp-route-role="Staff">
+                    Nhân viên
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link @(role == "Admin" ? "active" : "")"
+                   asp-action="Index"
+                   asp-route-role="Admin">
+                    Quản trị viên
+                </a>
+            </li>
+        </ul>
+
+        <a class="btn btn-primary"
+           asp-action="Create"
+           asp-route-role="@role">
+            + Thêm @Title(role)
+        </a>
     </div>
-    <div class="col-auto"><button class="btn btn-outline-light">Tìm</button></div>
-</form>
 
-<div class="table-responsive">
-    <table class="table table-hover align-middle">
-        <thead>
-            <tr><th>Tên</th><th>Email</th><th>SĐT</th><th>Trạng thái</th><th>Hành động</th></tr>
-        </thead>
-        <tbody>
+    <form method="get" class="row g-2 mb-3">
+        <input type="hidden" name="role" value="@role" />
+
+        <div class="col-12 col-md-6 col-lg-4">
+            <input name="q"
+                   value="@q"
+                   class="form-control"
+                   placeholder="Tìm theo tên hoặc email..." />
+        </div>
+
+        <div class="col-auto">
+            <button class="btn btn-outline-light">Tìm</button>
+        </div>
+    </form>
+
+    <div class="table-responsive user-admin-table-wrapper">
+        <table class="table table-hover align-middle user-admin-table">
+            <thead>
+                <tr>
+                    <th>Tên</th>
+                    <th>Email</th>
+                    <th>SĐT</th>
+                    <th>Trạng thái</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var u in Model.Items)
+                {
+                    bool isMe = u.Id == me;
+
+                    <tr>
+                        <td>
+                            @u.HoTen
+                            @if (isMe)
+                            {
+                                <span class="badge text-bg-info ms-1">Bạn</span>
+                            }
+                        </td>
+
+                        <td>@u.Email</td>
+
+                        <td>@u.SoDienThoai</td>
+
+                        <td>
+                            <span class="badge @(u.TrangThai ? "text-bg-success" : "text-bg-secondary")">
+                                @(u.TrangThai ? "Đang hoạt động" : "Đã khóa")
+                            </span>
+                        </td>
+
+                        <td class="text-nowrap">
+                            <a class="btn btn-sm btn-primary"
+                               asp-action="Edit"
+                               asp-route-id="@u.Id">
+                                Sửa
+                            </a>
+
+                            @if (!isMe)
+                            {
+                                <form asp-action="ToggleLock"
+                                      method="post"
+                                      class="d-inline">
+                                    <input type="hidden" name="id" value="@u.Id" />
+
+                                    <button class="btn btn-sm @(u.TrangThai ? "btn-warning" : "btn-success")">
+                                        @(u.TrangThai ? "Khóa" : "Mở")
+                                    </button>
+                                </form>
+
+                                <form asp-action="Delete"
+                                      method="post"
+                                      class="d-inline"
+                                      onsubmit="return confirm('Xóa tài khoản @u.Email?')">
+                                    <input type="hidden" name="id" value="@u.Id" />
+
+                                    <button class="btn btn-sm btn-danger">
+                                        Xóa
+                                    </button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+
+                @if (!Model.Items.Any())
+                {
+                    <tr>
+                        <td colspan="5" class="text-center text-secondary py-4">
+                            Không có tài khoản nào.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="user-admin-mobile-list">
+        @if (!Model.Items.Any())
+        {
+            <div class="text-center text-secondary py-4">
+                Không có tài khoản nào.
+            </div>
+        }
+        else
+        {
             @foreach (var u in Model.Items)
             {
                 bool isMe = u.Id == me;
-                <tr>
-                    <td>
-                        @u.HoTen
-                        @if (isMe)
-                        {
-                            <span class="badge text-bg-info ms-1">Bạn</span>
-                        }
-                    </td>
-                    <td>@u.Email</td>
-                    <td>@u.SoDienThoai</td>
-                    <td>
+
+                <div class="user-admin-mobile-card">
+                    <div class="user-admin-mobile-row">
+                        <div class="user-admin-mobile-label">
+                            @if (role == "Staff")
+                            {
+                                <text>Nhân viên</text>
+                            }
+                            else if (role == "Admin")
+                            {
+                                <text>Quản trị viên</text>
+                            }
+                            else
+                            {
+                                <text>Khách hàng</text>
+                            }
+                        </div>
+
+                        <div class="user-admin-mobile-title">
+                            @u.HoTen
+                            @if (isMe)
+                            {
+                                <span class="badge text-bg-info ms-1">Bạn</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="user-admin-mobile-row">
+                        <div class="user-admin-mobile-label">Email</div>
+                        <div class="user-admin-mobile-value">@u.Email</div>
+                    </div>
+
+                    <div class="user-admin-mobile-row">
+                        <div class="user-admin-mobile-label">Số điện thoại</div>
+                        <div class="user-admin-mobile-value">
+                            @if (string.IsNullOrWhiteSpace(u.SoDienThoai))
+                            {
+                                <span class="text-secondary">Chưa cập nhật</span>
+                            }
+                            else
+                            {
+                                @u.SoDienThoai
+                            }
+                        </div>
+                    </div>
+
+                    <div class="user-admin-mobile-row mb-0">
+                        <div class="user-admin-mobile-label">Trạng thái</div>
                         <span class="badge @(u.TrangThai ? "text-bg-success" : "text-bg-secondary")">
                             @(u.TrangThai ? "Đang hoạt động" : "Đã khóa")
                         </span>
-                    </td>
-                    <td class="text-nowrap">
-                        <a class="btn btn-sm btn-primary" asp-action="Edit" asp-route-id="@u.Id">Sửa</a>
+                    </div>
+
+                    <div class="user-admin-mobile-actions">
+                        <a class="btn btn-sm btn-primary"
+                           asp-action="Edit"
+                           asp-route-id="@u.Id">
+                            Sửa
+                        </a>
 
                         @if (!isMe)
                         {
-                            <form asp-action="ToggleLock" method="post" class="d-inline">
+                            <form asp-action="ToggleLock" method="post">
                                 <input type="hidden" name="id" value="@u.Id" />
+
                                 <button class="btn btn-sm @(u.TrangThai ? "btn-warning" : "btn-success")">
                                     @(u.TrangThai ? "Khóa" : "Mở")
                                 </button>
                             </form>
 
-                            <form asp-action="Delete" method="post" class="d-inline"
+                            <form asp-action="Delete"
+                                  method="post"
                                   onsubmit="return confirm('Xóa tài khoản @u.Email?')">
                                 <input type="hidden" name="id" value="@u.Id" />
-                                <button class="btn btn-sm btn-danger">Xóa</button>
+
+                                <button class="btn btn-sm btn-danger">
+                                    Xóa
+                                </button>
                             </form>
                         }
-                    </td>
-                </tr>
+                    </div>
+                </div>
             }
-            @if (!Model.Items.Any())
-            {
-                <tr><td colspan="5" class="text-center text-secondary py-4">Không có tài khoản nào.</td></tr>
-            }
-        </tbody>
-    </table>
-</div>
+        }
+    </div>
 
-@if (Model.TotalPages > 1)
-{
-    <nav>
-        <ul class="pagination flex-wrap">
-            @for (int i = 1; i <= Model.TotalPages; i++)
-            {
-                <li class="page-item @(i == Model.Page ? "active" : "")">
-                    <a class="page-link" asp-action="Index" asp-route-role="@role" asp-route-q="@q" asp-route-page="@i">@i</a>
-                </li>
-            }
-        </ul>
-    </nav>
-}
+    @if (Model.TotalPages > 1)
+    {
+        <nav aria-label="Phân trang">
+            <ul class="pagination flex-wrap">
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.Page ? "active" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-role="@role"
+                           asp-route-q="@q"
+                           asp-route-page="@i">
+                            @i
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>

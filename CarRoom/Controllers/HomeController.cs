@@ -1,3 +1,4 @@
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CarRoom.Data;
@@ -13,17 +14,31 @@ namespace CarRoom.Controllers
             _context = context;
         }
 
-        // GET: / (Trang chủ)
         public async Task<IActionResult> Index()
         {
             var newCars = await _context.Cars
-                .Include(c => c.CarModel).ThenInclude(m => m.Brand)
-                .Include(c => c.Colors).ThenInclude(col => col.CarImages)
+                .Include(c => c.CarModel)
+                    .ThenInclude(m => m.Brand)
+                .Include(c => c.Colors)
+                    .ThenInclude(col => col.CarImages)
                 .Where(c => c.TrangThai != "Ngừng bán")
                 .OrderByDescending(c => c.NgayDang)
                 .Take(8)
                 .AsNoTracking()
                 .ToListAsync();
+
+            var featuredCars = await _context.Cars
+                .Include(c => c.CarModel)
+                    .ThenInclude(m => m.Brand)
+                .Include(c => c.Colors)
+                    .ThenInclude(col => col.CarImages)
+                .Where(c => c.NoiBat == "Có" && c.TrangThai != "Ngừng bán")
+                .OrderByDescending(c => c.NgayDang)
+                .Take(8)
+                .AsNoTracking()
+                .ToListAsync();
+
+            ViewBag.FeaturedCars = featuredCars;
 
             return View(newCars);
         }

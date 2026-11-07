@@ -1,4 +1,5 @@
-﻿@model IEnumerable<CarRoom.Models.Car>
+﻿
+@model IEnumerable<CarRoom.Models.Car>
 @{
     ViewData["Title"] = "Quản lý xe";
     var search = ViewBag.Search as string;
@@ -6,63 +7,284 @@
     int totalPages = ViewBag.TotalPages;
 }
 
-<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
-    <h1 class="h3 mb-0">Quản lý xe <span class="text-muted fs-6">(@ViewBag.Total xe)</span></h1>
-    <a asp-action="Create" class="btn btn-primary">Thêm xe mới</a>
-</div>
+<style>
+    .car-admin-page {
+        min-width: 0;
+    }
 
-<form method="get" class="row g-2 mb-3">
-    <div class="col-sm-6 col-md-4">
-        <input type="search" name="search" value="@search" class="form-control" placeholder="Tìm theo hãng hoặc dòng xe"/>
+    .car-admin-table-wrapper {
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .car-admin-table {
+        min-width: 850px;
+    }
+
+    .car-admin-mobile-list {
+        display: none;
+    }
+
+    @@media (max-width: 991.98px) {
+        .car-admin-table-wrapper {
+            display: none;
+        }
+
+        .car-admin-mobile-list {
+            display: block;
+        }
+
+        .car-admin-mobile-card {
+            background-color: #252c3b;
+            border: 1px solid #394254;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 14px;
+            color: #f8fafc;
+            overflow-wrap: anywhere;
+        }
+
+        .car-admin-mobile-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .car-admin-mobile-label {
+            color: #9ca3af;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .car-admin-mobile-value {
+            color: #f8fafc;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .car-admin-mobile-row {
+            margin-bottom: 14px;
+        }
+
+        .car-admin-mobile-colors {
+            border-top: 1px solid #394254;
+            padding-top: 14px;
+            margin-top: 14px;
+        }
+
+        .car-admin-mobile-color {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .car-admin-mobile-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding-top: 14px;
+            margin-top: 14px;
+            border-top: 1px solid #394254;
+        }
+
+        .car-admin-mobile-actions > a,
+        .car-admin-mobile-actions > form {
+            flex: 1;
+        }
+
+        .car-admin-mobile-actions form button {
+            width: 100%;
+        }
+
+        .car-admin-page .pagination {
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+    }
+
+    @@media (max-width: 575.98px) {
+        .car-admin-mobile-card {
+            padding: 14px;
+        }
+
+        .car-admin-search .form-control {
+            width: 100%;
+        }
+
+        .car-admin-mobile-actions > a,
+        .car-admin-mobile-actions > form {
+            min-width: 0;
+        }
+    }
+</style>
+
+<div class="car-admin-page">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <h1 class="h3 mb-0">
+            Quản lý xe
+            <span class="text-muted fs-6">(@ViewBag.Total xe)</span>
+        </h1>
+        <a asp-action="Create" class="btn btn-primary">Thêm xe mới</a>
     </div>
-    <div class="col-auto">
-        <button type="submit" class="btn btn-outline-secondary">Tìm</button>
-        @if (!string.IsNullOrEmpty(search))
+
+    <form method="get" class="row g-2 mb-3 car-admin-search">
+        <div class="col-12 col-sm-6 col-md-4">
+            <input type="search"
+                   name="search"
+                   value="@search"
+                   class="form-control"
+                   placeholder="Tìm theo hãng hoặc dòng xe" />
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-outline-secondary">Tìm</button>
+            @if (!string.IsNullOrEmpty(search))
             {
                 <a asp-action="Index" class="btn btn-link">Xóa tìm kiếm</a>
             }
         </div>
-</form>
+    </form>
 
-<div class="table-responsive">
-    <table class="table table-hover align-middle">
-        <thead>
-            <tr>
-                <th>Xe</th>
-                <th>Năm</th>
-                <th class="text-end">Giá (VNĐ)</th>
-                <th>Màu và tồn kho</th>
-                <th>Trạng thái</th>
-                <th class="text-end">Thao tác</th>
-            </tr>
-        </thead>
-        <tbody>
-                @foreach (var car in Model)
-            {
-                var inStock = car.Colors.Any(c => c.SoLuongTon > 0);
+    <div class="table-responsive car-admin-table-wrapper">
+        <table class="table table-hover align-middle car-admin-table">
+            <thead>
                 <tr>
-                    <td>
-                        <div class="fw-semibold">@car.CarModel.Brand.TenHang @car.CarModel.TenDongXe</div>
-                        <div class="small text-muted">@car.CarModel.LoaiThanXe, @car.NhienLieu, @car.HopSo</div>
-                    </td>
-                    <td>@car.NamSanXuat</td>
-                    <td class="text-end">@car.Gia.ToString("N0")</td>
-                    <td>
-                        @foreach (var col in car.Colors)
-                        {
-                            <form asp-action="Sell" method="post" class="d-flex align-items-center gap-2 mb-1">
-                                <input type="hidden" name="colorId" value="@col.Id"/>
-                                <input type="hidden" name="returnSearch" value="@search"/>
-                                <input type="hidden" name="returnPage" value="@(page)"/>
-                                <span class="d-inline-block border rounded-circle" style="width:16px;height:16px;background:@col.MaMauHex"></span>
-                                <span class="small">@col.TenMau: <strong>@col.SoLuongTon</strong></span>
-                                <button type="submit" class="btn btn-sm btn-outline-success py-0" disabled="@(col.SoLuongTon == 0)">
-                                    Bán 1 chiếc
+                    <th>Xe</th>
+                    <th>Năm</th>
+                    <th class="text-end">Giá (VNĐ)</th>
+                    <th>Màu và tồn kho</th>
+                    <th>Trạng thái</th>
+                    <th class="text-end">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var car in Model)
+                {
+                    var inStock = car.Colors.Any(c => c.SoLuongTon > 0);
+                    <tr>
+                        <td>
+                            <div class="fw-semibold">
+                                @car.CarModel.Brand.TenHang @car.CarModel.TenDongXe
+                            </div>
+                            <div class="small text-muted">
+                                @car.CarModel.LoaiThanXe, @car.NhienLieu, @car.HopSo
+                            </div>
+                        </td>
+                        <td>@car.NamSanXuat</td>
+                        <td class="text-end">@car.Gia.ToString("N0")</td>
+                        <td>
+                            @foreach (var col in car.Colors)
+                            {
+                                <form asp-action="Sell"
+                                      method="post"
+                                      class="d-flex align-items-center gap-2 mb-1">
+                                    <input type="hidden" name="colorId" value="@col.Id" />
+                                    <input type="hidden" name="returnSearch" value="@search" />
+                                    <input type="hidden" name="returnPage" value="@(page)" />
+                                    <span class="d-inline-block border rounded-circle"
+                                          style="width:16px;height:16px;background:@col.MaMauHex"></span>
+                                    <span class="small">
+                                        @col.TenMau: <strong>@col.SoLuongTon</strong>
+                                    </span>
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-success py-0"
+                                            disabled="@(col.SoLuongTon == 0)">
+                                        Bán 1 chiếc
+                                    </button>
+                                </form>
+                            }
+                        </td>
+                        <td>
+                            @if (car.TrangThai != "Còn hàng")
+                            {
+                                <span class="badge text-bg-secondary">Ngừng bán</span>
+                            }
+                            else if (inStock)
+                            {
+                                <span class="badge text-bg-success">Còn hàng</span>
+                            }
+                            else
+                            {
+                                <span class="badge text-bg-danger">Hết hàng</span>
+                            }
+
+                            @if (car.NoiBat == "Có")
+                            {
+                                <span class="badge text-bg-warning">Nổi bật</span>
+                            }
+                        </td>
+                        <td class="text-end text-nowrap">
+                            <a asp-action="Edit"
+                               asp-route-id="@car.Id"
+                               class="btn btn-sm btn-outline-primary">
+                                Sửa
+                            </a>
+                            <form asp-action="Delete"
+                                  asp-route-id="@car.Id"
+                                  method="post"
+                                  class="d-inline"
+                                  onsubmit="return confirm('Xóa xe @car.CarModel.TenDongXe @car.NamSanXuat? Thao tác này không hoàn tác được. ');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    Xóa
                                 </button>
                             </form>
-                        }
-                    </td>
-                    <td>
+                        </td>
+                    </tr>
+                }
+
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            Không có xe nào. Bấm "Thêm xe mới" để bắt đầu.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="car-admin-mobile-list">
+        @if (!Model.Any())
+        {
+            <div class="text-center text-secondary py-4">
+                Không có xe nào. Bấm "Thêm xe mới" để bắt đầu.
+            </div>
+        }
+        else
+        {
+            @foreach (var car in Model)
+            {
+                var inStock = car.Colors.Any(c => c.SoLuongTon > 0);
+
+                <div class="car-admin-mobile-card">
+                    <div class="car-admin-mobile-row">
+                        <div class="car-admin-mobile-label">Xe</div>
+                        <div class="car-admin-mobile-title">
+                            @car.CarModel.Brand.TenHang @car.CarModel.TenDongXe
+                        </div>
+                        <div class="text-secondary small mt-1">
+                            @car.CarModel.LoaiThanXe, @car.NhienLieu, @car.HopSo
+                        </div>
+                    </div>
+
+                    <div class="car-admin-mobile-row">
+                        <div class="car-admin-mobile-label">Năm sản xuất</div>
+                        <div class="car-admin-mobile-value">@car.NamSanXuat</div>
+                    </div>
+
+                    <div class="car-admin-mobile-row">
+                        <div class="car-admin-mobile-label">Giá (VNĐ)</div>
+                        <div class="car-admin-mobile-value fw-bold">
+                            @car.Gia.ToString("N0")
+                        </div>
+                    </div>
+
+                    <div class="car-admin-mobile-row mb-0">
+                        <div class="car-admin-mobile-label">Trạng thái</div>
+
                         @if (car.TrangThai != "Còn hàng")
                         {
                             <span class="badge text-bg-secondary">Ngừng bán</span>
@@ -75,44 +297,103 @@
                         {
                             <span class="badge text-bg-danger">Hết hàng</span>
                         }
-                        @if (car.NoiBat=="Có")
-                        {
-                            <span class="badge text-bg-warning">Nổi bật</span>
-                        }
-                    </td>
-                    <td class="text-end text-nowrap">
-                        <a asp-action="Edit" asp-route-id="@car.Id" class="btn btn-sm btn-outline-primary">Sửa</a>
-                        <form asp-action="Delete" asp-route-id="@car.Id" method="post" class="d-inline"
-                            onsubmit="return confirm('Xóa xe @car.CarModel.TenDongXe @car.NamSanXuat? Thao tác này không hoàn tác được. ');">
-                            <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
-                        </form>
-                    </td>
-                </tr>
-            }
-            @if (!Model.Any())
-            {
-                <tr><td colspan="6" class="text-center text-muted py-4">Không có xe nào. Bấm "Thêm xe mới" để bắt đầu.</td></tr>
-            }
-        </tbody>
-    </table>
-</div>
 
-@if(totalPages > 1)
-{
-    <nav aria-label="Phân trang">
-        <ul class="pagination justify-content-center">
-            <li class="page-item @(page == 1 ? "disabled" : "")">
-                <a class="page-link" asp-action="Index" asp-route-search="@search" asp-route-page="@(page-1)">Trước</a>
-            </li>
-            @for(int i=1; i<= totalPages; i++)
-            {
-                <li class="page-item @(i==page ? "active" : "")">
-                    <a class="page-link" asp-action="Index" asp-route-search="@search" asp-route-page="@i">@i</a>
-                </li>
+                        @if (car.NoiBat == "Có")
+                        {
+                            <span class="badge text-bg-warning ms-1">Nổi bật</span>
+                        }
+                    </div>
+
+                    <div class="car-admin-mobile-colors">
+                        <div class="car-admin-mobile-label">Màu xe và tồn kho</div>
+
+                        @if (!car.Colors.Any())
+                        {
+                            <div class="text-secondary small">Chưa có màu xe</div>
+                        }
+                        else
+                        {
+                            @foreach (var col in car.Colors)
+                            {
+                                <form asp-action="Sell"
+                                      method="post"
+                                      class="car-admin-mobile-color">
+                                    <input type="hidden" name="colorId" value="@col.Id" />
+                                    <input type="hidden" name="returnSearch" value="@search" />
+                                    <input type="hidden" name="returnPage" value="@(page)" />
+
+                                    <span class="d-inline-block border rounded-circle flex-shrink-0"
+                                          style="width:16px;height:16px;background:@col.MaMauHex"></span>
+
+                                    <span class="small">
+                                        @col.TenMau: <strong>@col.SoLuongTon</strong>
+                                    </span>
+
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-success"
+                                            disabled="@(col.SoLuongTon == 0)">
+                                        Bán 1 chiếc
+                                    </button>
+                                </form>
+                            }
+                        }
+                    </div>
+
+                    <div class="car-admin-mobile-actions">
+                        <a asp-action="Edit"
+                           asp-route-id="@car.Id"
+                           class="btn btn-sm btn-outline-primary">
+                            Sửa
+                        </a>
+
+                        <form asp-action="Delete"
+                              asp-route-id="@car.Id"
+                              method="post"
+                              onsubmit="return confirm('Xóa xe @car.CarModel.TenDongXe @car.NamSanXuat? Thao tác này không hoàn tác được. ');">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                Xóa
+                            </button>
+                        </form>
+                    </div>
+                </div>
             }
-            <li class="page-item @(page == totalPages ? "disabled" : "")">
-                <a class="page-link" asp-action="Index" asp-route-search="@search" asp-route-page="@(page + 1)">Sau</a>
-            </li>
-        </ul>
-    </nav>
-}
+        }
+    </div>
+
+    @if (totalPages > 1)
+    {
+        <nav aria-label="Phân trang">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(page == 1 ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-search="@search"
+                       asp-route-page="@(page - 1)">
+                        Trước
+                    </a>
+                </li>
+
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    <li class="page-item @(i == page ? "active" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-search="@search"
+                           asp-route-page="@i">
+                            @i
+                        </a>
+                    </li>
+                }
+
+                <li class="page-item @(page == totalPages ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-search="@search"
+                       asp-route-page="@(page + 1)">
+                        Sau
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    }
+</div>

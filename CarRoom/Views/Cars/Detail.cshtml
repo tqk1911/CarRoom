@@ -1,4 +1,5 @@
-﻿@model CarRoom.Models.ViewModels.CarDetailViewModel
+﻿
+@model CarRoom.Models.ViewModels.CarDetailViewModel
 @using CarRoom.Models
 @using CarRoom.Models.ViewModels
 
@@ -26,43 +27,60 @@
 
     <div class="row g-4">
         <div class="col-lg-7">
-            @foreach(var col in colors)
+            @foreach (var col in colors)
             {
                 var images = col.CarImages.OrderBy(i => i.ThuTu).ToList();
                 var isActive = activeColor != null && col.Id == activeColor.Id;
+
                 <div class="color-gallery @(isActive ? "" : "d-none")" data-color-id="@col.Id">
-                    @if(images.Count == 0)
+                    @if (images.Count == 0)
                     {
-                        <img src="@placeholder" class="d-block w-100 rounded" alt="Chưa có ảnh màu @col.TenMau"/>
+                        <img src="@placeholder" class="d-block w-100 rounded" alt="Chưa có ảnh màu @col.TenMau" />
                     }
                     else
                     {
                         <div id="carousel-@col.Id" class="carousel slide" data-bs-ride="false">
-                            @if(images.Count > 1)
+                            @if (images.Count > 1)
                             {
                                 <div class="carousel-indicators">
-                                    @for(int i = 0; i < images.Count; i++)
+                                    @for (int i = 0; i < images.Count; i++)
                                     {
-                                        <button type="button" data-bs-target="#carousel-@col.Id" data-bs-slide-to="@i"
-                                            class="@(i==0 ? "active" : "")" aria-label="Ảnh @(i+1)"></button>
+                                        <button type="button"
+                                                data-bs-target="#carousel-@col.Id"
+                                                data-bs-slide-to="@i"
+                                                class="@(i == 0 ? "active" : "")"
+                                                aria-label="Ảnh @(i + 1)">
+                                        </button>
                                     }
                                 </div>
                             }
+
                             <div class="carousel-inner rounded">
-                                @for(int i=0; i < images.Count; i++)
+                                @for (int i = 0; i < images.Count; i++)
                                 {
-                                    <div class="carousel-item @(i==0 ? "active" : "")">
-                                        <img src="@images[i].DuongDanAnh" class="d-block w-100" style="aspect-ratio:3/2;object-fit:cover" alt="@title màu @col.TenMau, ảnh @(i+1)"/>
+                                    <div class="carousel-item @(i == 0 ? "active" : "")">
+                                        <img src="@images[i].DuongDanAnh"
+                                             class="d-block w-100"
+                                             style="aspect-ratio:3/2;object-fit:cover"
+                                             alt="@title màu @col.TenMau, ảnh @(i + 1)" />
                                     </div>
                                 }
                             </div>
-                            @if(images.Count > 1)
+
+                            @if (images.Count > 1)
                             {
-                                <button class="carousel-control-prev" type="button" data-bs-target="#carousel-@col.Id" data-bs-slide="prev">
+                                <button class="carousel-control-prev"
+                                        type="button"
+                                        data-bs-target="#carousel-@col.Id"
+                                        data-bs-slide="prev">
                                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                                     <span class="visually-hidden">Ảnh trước</span>
                                 </button>
-                                <button class="carousel-control-next" type="button" data-bs-target="#carousel-@col.Id" data-bs-slide="next">
+
+                                <button class="carousel-control-next"
+                                        type="button"
+                                        data-bs-target="#carousel-@col.Id"
+                                        data-bs-slide="next">
                                     <span class="carousel-control-next-icon" aria-hidden="true"></span>
                                     <span class="visually-hidden">Ảnh sau</span>
                                 </button>
@@ -71,14 +89,17 @@
                     }
                 </div>
             }
-            @if(colors.Count == 0)
+
+            @if (colors.Count == 0)
             {
-                <img src="@placeholder" class="d-block w-100 rounded" alt="Chưa có ảnh"/>
+                <img src="@placeholder" class="d-block w-100 rounded" alt="Chưa có ảnh" />
             }
         </div>
+
         <div class="col-lg-5">
             <div class="d-flex justify-content-between align-items-start gap-2">
                 <h1 class="h3">@title</h1>
+
                 @if (inStock)
                 {
                     <span class="badge text-bg-success">Còn hàng</span>
@@ -88,21 +109,33 @@
                     <span class="badge text-bg-danger">Hết hàng</span>
                 }
             </div>
-            <div class="fs-3 fw-bold text-primary mb-3">@car.Gia.ToString("N0") đ</div>
 
-            @if(colors.Count > 0)
+            <div class="fs-3 fw-bold text-primary mb-3">
+                @car.Gia.ToString("N0") đ
+            </div>
+
+            @if (colors.Count > 0)
             {
                 <div class="mb-3">
-                    <div class="form-label">Màu xe: <strong id="color-name">@activeColor?.TenMau</strong>
+                    <div class="form-label">
+                        Màu xe: <strong id="color-name">@activeColor?.TenMau</strong>
                         <span id="color-stock" class="small text-muted"></span>
                     </div>
-                    <div class="d-flex flex-wrap gap-2" role="radiogroup" aria-label="Chọn màu xe">
+
+                    <div class="d-flex flex-wrap gap-2"
+                         role="radiogroup"
+                         aria-label="Chọn màu xe">
                         @foreach (var col in colors)
                         {
-                            <button type="button" class="btn btn-outline-secondary color-pick d-flex align-items-center gap-2 @(activeColor != null && col.Id == activeColor.Id ? "active" : "")"
-                                   data-color-id="@col.Id" data-color-name="@col.TenMau" data-stock="@col.SoLuongTon" role="radio"
-                                   aria-checked="@(activeColor != null && col.Id == activeColor.Id ? "true" : "false")">
-                                <span class="d-inline-block border rounded-circle" style="width:18px;height:18px;background:@col.MaMauHex"></span>
+                            <button type="button"
+                                    class="btn btn-outline-secondary color-pick d-flex align-items-center gap-2 @(activeColor != null && col.Id == activeColor.Id ? "active" : "")"
+                                    data-color-id="@col.Id"
+                                    data-color-name="@col.TenMau"
+                                    data-stock="@col.SoLuongTon"
+                                    role="radio"
+                                    aria-checked="@(activeColor != null && col.Id == activeColor.Id ? "true" : "false")">
+                                <span class="d-inline-block border rounded-circle"
+                                      style="width:18px;height:18px;background:@col.MaMauHex"></span>
                                 @col.TenMau
                             </button>
                         }
@@ -121,39 +154,76 @@
                     <tr><th scope="row" class="fw-normal text-muted">Nhiên liệu</th><td>@car.NhienLieu</td></tr>
                 </tbody>
             </table>
-            <a href="#dat-lich" class="btn btn-primary w-100">Đặt lịch xem xe</a>
+
+            <a href="#dat-lich" class="btn btn-primary w-100">
+                Đặt lịch xem xe
+            </a>
+
+            <button type="button"
+                    id="detail-favorite-button"
+                    class="btn btn-outline-danger w-100 mt-2"
+                    data-car-id="@car.Id"
+                    aria-pressed="false"
+                    disabled>
+                ♡ Yêu thích
+            </button>
+
+            <div id="detail-favorite-message"
+                 class="small mt-2 d-none"
+                 role="status"
+                 aria-live="polite">
+            </div>
         </div>
     </div>
+
     @if (!string.IsNullOrWhiteSpace(car.MoTa))
     {
         <section class="mt-5">
             <h2 class="h4">Mô tả</h2>
-
             <div>@Html.Raw(car.MoTa)</div>
         </section>
     }
+
     <section id="dat-lich" class="mt-5">
         <h2 class="h4">Đặt lịch xem xe</h2>
-        <partial name="_AppointmentForm" model="new AppointmentFormViewModel {CarId = car.Id}" />
+        <partial name="_AppointmentForm" model="new AppointmentFormViewModel { CarId = car.Id }" />
     </section>
-    @if(Model.SimilarCars.Count > 0)
+
+    @if (Model.SimilarCars.Count > 0)
     {
         <section class="mt-5">
             <h2 class="h4 mb-3">Xe tương tự</h2>
+
             <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
-                @foreach(var s in Model.SimilarCars)
+                @foreach (var s in Model.SimilarCars)
                 {
                     var sName = $"{s.CarModel.Brand.TenHang} {s.CarModel.TenDongXe}";
                     var sInStock = s.Colors.Any(c => c.SoLuongTon > 0);
+
                     <div class="col">
                         <div class="card h-100">
-                            <img src="@MainImage(s)" class="card-img-top" alt="@sName" style="aspect-ratio:3/2;object-fit:cover" loading="lazy"/>
+                            <img src="@MainImage(s)"
+                                 class="card-img-top"
+                                 alt="@sName"
+                                 style="aspect-ratio:3/2;object-fit:cover"
+                                 loading="lazy" />
+
                             <div class="card-body d-flex flex-column">
                                 <h3 class="h6 card-title">
-                                    <a asp-action="Detail" asp-route-id="@s.Id" class="text-decoration-none text-reset stretched-link">@sName</a>
+                                    <a asp-action="Detail"
+                                       asp-route-id="@s.Id"
+                                       class="text-decoration-none text-reset stretched-link">
+                                        @sName
+                                    </a>
                                 </h3>
-                                <div class="smaill text-muted mb-2">@s.NamSanXuat, @s.NhienLieu @(sInStock ? "" : "(hết hàng)")</div>
-                                <div class="fw-bold text-primary mt-auto">@s.Gia.ToString("N0") đ</div>
+
+                                <div class="smaill text-muted mb-2">
+                                    @s.NamSanXuat, @s.NhienLieu @(sInStock ? "" : "(hết hàng)")
+                                </div>
+
+                                <div class="fw-bold text-primary mt-auto">
+                                    @s.Gia.ToString("N0") đ
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -165,30 +235,137 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
     <script>
-        //Chọn màu: hiện bộ ảnh của màu đó, cập nhật tên màu và số lượng còn
-        (function() {
+        (function () {
             var buttons = document.querySelectorAll('.color-pick');
             var galleries = document.querySelectorAll('.color-gallery');
             var nameEl = document.getElementById('color-name');
             var stockEl = document.getElementById('color-stock');
-            
-            function show(btn){
-                buttons.forEach(function(b) {
+
+            function show(btn) {
+                buttons.forEach(function (b) {
                     var on = b === btn;
                     b.classList.toggle('active', on);
                     b.setAttribute('aria-checked', on ? 'true' : 'false');
                 });
+
                 galleries.forEach(function (g) {
                     g.classList.toggle('d-none', g.dataset.colorId !== btn.dataset.colorId);
                 });
+
                 nameEl.textContent = btn.dataset.colorName;
+
                 var stock = parseInt(btn.dataset.stock, 10);
-                stockEl.textContent = stock > 0 ? '(còn ' + stock + ' xe)' : '(hết hàng màu này)'; 
+
+                stockEl.textContent = stock > 0
+                    ? '(còn ' + stock + ' xe)'
+                    : '(hết hàng màu này)';
             }
-            buttons.forEach(function (b) { b.addEventListener('click', function () { show(b); }); });
+
+            buttons.forEach(function (b) {
+                b.addEventListener('click', function () {
+                    show(b);
+                });
+            });
+
             var first = document.querySelector('.color-pick.active');
-            if (first) show(first);
+
+            if (first) {
+                show(first);
+            }
+        })();
+
+        (function () {
+            var button = document.getElementById('detail-favorite-button');
+            var message = document.getElementById('detail-favorite-message');
+
+            if (!button) {
+                return;
+            }
+
+            var carId = parseInt(button.dataset.carId, 10);
+            var token = document.querySelector('input[name="__RequestVerificationToken"]');
+
+            function setFavorite(isFavorite) {
+                button.classList.toggle('btn-danger', isFavorite);
+                button.classList.toggle('btn-outline-danger', !isFavorite);
+                button.textContent = isFavorite
+                    ? '♥ Đã yêu thích'
+                    : '♡ Yêu thích';
+                button.setAttribute('aria-pressed', isFavorite ? 'true' : 'false');
+            }
+
+            function showMessage(text, isError) {
+                message.textContent = text;
+                message.classList.remove('d-none', 'text-success', 'text-danger');
+                message.classList.add(isError ? 'text-danger' : 'text-success');
+            }
+
+            fetch('@Url.Action("Status", "Favorite")', {
+                credentials: 'same-origin'
+            })
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error('Không thể tải trạng thái yêu thích.');
+                }
+
+                return response.json();
+            })
+            .then(function (data) {
+                var ids = Array.isArray(data.carIds) ? data.carIds : [];
+                setFavorite(ids.some(function (id) {
+                    return Number(id) === carId;
+                }));
+                button.disabled = false;
+            })
+            .catch(function () {
+                showMessage('Không tải được trạng thái yêu thích.', true);
+            });
+
+            button.addEventListener('click', function () {
+                if (!token) {
+                    showMessage('Không tìm thấy mã xác thực. Vui lòng tải lại trang.', true);
+                    return;
+                }
+
+                button.disabled = true;
+                message.classList.add('d-none');
+
+                var body = new URLSearchParams();
+                body.append('carId', String(carId));
+                body.append('__RequestVerificationToken', token.value);
+
+                fetch('@Url.Action("ToggleAjax", "Favorite")', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+                    },
+                    body: body.toString()
+                })
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw new Error('Không cập nhật được danh sách yêu thích.');
+                    }
+
+                    return response.json();
+                })
+                .then(function (data) {
+                    if (!data.success) {
+                        throw new Error(data.message || 'Có lỗi xảy ra.');
+                    }
+
+                    setFavorite(data.isFavorite);
+                    showMessage(data.message, false);
+                })
+                .catch(function (error) {
+                    showMessage(error.message, true);
+                })
+                .finally(function () {
+                    button.disabled = false;
+                });
+            });
         })();
     </script>
 }

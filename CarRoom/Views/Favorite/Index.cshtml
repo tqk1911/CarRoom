@@ -6,19 +6,18 @@
 }
 
 <div class="container py-4">
-    <div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
         <div>
             <h2 class="fw-bold mb-1">Xe yêu thích</h2>
             <p class="text-muted mb-0">
-                Danh sách những mẫu xe bạn đã lưu
+                Những mẫu xe bạn quan tâm và đã lưu lại
             </p>
         </div>
 
-        <a asp-controller="Home"
+        <a asp-controller="Cars"
            asp-action="Index"
            class="btn btn-outline-primary rounded-pill px-4">
-            <i class="bi bi-arrow-left me-1"></i>
-            Trang chủ
+            Khám phá thêm xe
         </a>
     </div>
 
@@ -29,7 +28,7 @@
             <button type="button"
                     class="btn-close"
                     data-bs-dismiss="alert"
-                    aria-label="Close">
+                    aria-label="Đóng">
             </button>
         </div>
     }
@@ -37,17 +36,15 @@
     @if (!Model.Any())
     {
         <div class="text-center bg-light rounded-4 py-5 px-3">
-            <i class="bi bi-heart text-secondary display-3"></i>
+            <div class="display-3 text-secondary mb-3">♡</div>
 
-            <h4 class="fw-bold mt-3">
-                Chưa có xe yêu thích
-            </h4>
+            <h4 class="fw-bold">Chưa có xe yêu thích</h4>
 
             <p class="text-muted">
                 Hãy khám phá và lưu những mẫu xe bạn quan tâm.
             </p>
 
-            <a asp-controller="Home"
+            <a asp-controller="Cars"
                asp-action="Index"
                class="btn btn-primary rounded-pill px-4 mt-2">
                 Khám phá xe
@@ -59,19 +56,55 @@
         <div class="row g-4">
             @foreach (var car in Model)
             {
+                var image = car.Colors
+                    .SelectMany(c => c.CarImages)
+                    .OrderByDescending(i => i.LaAnhChinh)
+                    .ThenBy(i => i.ThuTu)
+                    .FirstOrDefault();
+
+                var imagePath = image?.DuongDanAnh;
+
+                if (!string.IsNullOrWhiteSpace(imagePath))
+                {
+                    if (!imagePath.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+                        && !imagePath.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
+                        && !imagePath.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
+                    {
+                        imagePath = Url.Content("~/" + imagePath.TrimStart('~', '/'));
+                    }
+                }
+
                 <div class="col-12 col-md-6 col-lg-4">
                     <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
 
-                        <div class="bg-light text-center py-5">
-                            <i class="bi bi-car-front-fill text-secondary display-2"></i>
-                        </div>
+                        <a asp-controller="Cars"
+                           asp-action="Detail"
+                           asp-route-id="@car.Id"
+                           class="text-decoration-none">
 
-                        <div class="card-body p-4">
+                            @if (!string.IsNullOrWhiteSpace(imagePath))
+                            {
+                                <img src="@imagePath"
+                                     alt="@(car.CarModel?.TenDongXe ?? "Xe")"
+                                     class="card-img-top"
+                                     style="height:230px;object-fit:cover;"
+                                     loading="lazy" />
+                            }
+                            else
+                            {
+                                <div class="bg-light d-flex align-items-center justify-content-center text-secondary"
+                                     style="height:230px;">
+                                    Chưa có ảnh
+                                </div>
+                            }
+                        </a>
+
+                        <div class="card-body p-4 d-flex flex-column">
                             <div class="text-muted small mb-2">
                                 @(car.CarModel?.Brand?.TenHang ?? "Chưa có hãng xe")
                             </div>
 
-                            <h5 class="card-title fw-bold mb-3">
+                            <h5 class="card-title fw-bold mb-2">
                                 @(car.CarModel?.TenDongXe ?? "Chưa có tên xe")
                             </h5>
 
@@ -93,28 +126,36 @@
                                 </span>
                             </div>
 
-                            <div class="mb-3">
-                                <span class="badge bg-secondary">
+                            <div class="mb-4">
+                                <span class="badge @(car.ConHang ? "bg-success" : "bg-secondary")">
                                     @car.TrangThai
                                 </span>
                             </div>
 
-                            <form asp-controller="Favorite"
-                                  asp-action="Remove"
-                                  method="post">
+                            <div class="mt-auto">
+                                <a asp-controller="Cars"
+                                   asp-action="Detail"
+                                   asp-route-id="@car.Id"
+                                   class="btn btn-primary w-100 rounded-pill mb-2">
+                                    Xem chi tiết
+                                </a>
 
-                                @Html.AntiForgeryToken()
+                                <form asp-controller="Favorite"
+                                      asp-action="Remove"
+                                      method="post">
 
-                                <input type="hidden"
-                                       name="carId"
-                                       value="@car.Id" />
+                                    @Html.AntiForgeryToken()
 
-                                <button type="submit"
-                                        class="btn btn-outline-danger w-100 rounded-pill">
-                                    <i class="bi bi-heartbreak me-1"></i>
-                                    Bỏ yêu thích
-                                </button>
-                            </form>
+                                    <input type="hidden"
+                                           name="carId"
+                                           value="@car.Id" />
+
+                                    <button type="submit"
+                                            class="btn btn-outline-danger w-100 rounded-pill">
+                                        ♡ Bỏ yêu thích
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
