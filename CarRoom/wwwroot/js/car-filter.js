@@ -123,6 +123,7 @@
             '</button>';
     }
 
+    // Tạo thẻ xe
     function cardHtml(car) {
         var url = '/Cars/Detail/' + encodeURIComponent(car.id);
 
@@ -132,7 +133,9 @@
 
         return '' +
             '<div class="col">' +
-            '<div class="card h-100 position-relative">' +
+            '<div class="card h-100 position-relative car-clickable" ' +
+            'data-detail-url="' + url + '" role="link" tabindex="0" ' +
+            'aria-label="Xem chi tiết ' + esc(car.name) + '" style="cursor:pointer">' +
             soldOut +
             '<img src="' + esc(car.image || PLACEHOLDER) + '" ' +
             'class="card-img-top" alt="' + esc(car.name) + '" ' +
@@ -378,19 +381,49 @@
         });
     });
 
+    // Bấm vào bất kỳ vị trí nào trên thẻ xe cũng mở trang chi tiết,
+    // ngoại trừ nút yêu thích.
     listEl.addEventListener('click', function (e) {
         var button = e.target.closest('.btn-favorite');
 
-        if (!button || !listEl.contains(button)) return;
+        if (button && listEl.contains(button)) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            var carId = Number(button.dataset.carId);
+            if (!Number.isInteger(carId) || carId <= 0) return;
+
+            toggleFavorite(carId);
+            return;
+        }
+
+        // Giữ hành vi mặc định của liên kết tên xe.
+        if (e.target.closest('a')) return;
+
+        var card = e.target.closest('.car-clickable');
+        if (!card || !listEl.contains(card)) return;
+
+        var detailUrl = card.dataset.detailUrl;
+        if (detailUrl) {
+            window.location.href = detailUrl;
+        }
+    });
+
+    // Hỗ trợ mở chi tiết bằng Enter hoặc Space.
+    listEl.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+
+        var card = e.target.closest('.car-clickable');
+        if (!card || !listEl.contains(card)) return;
+
+        // Không chuyển trang khi thao tác với nút hoặc liên kết.
+        if (e.target.closest('.btn-favorite, a, input, select, textarea')) return;
 
         e.preventDefault();
-        e.stopPropagation();
 
-        var carId = Number(button.dataset.carId);
-
-        if (!Number.isInteger(carId) || carId <= 0) return;
-
-        toggleFavorite(carId);
+        if (card.dataset.detailUrl) {
+            window.location.href = card.dataset.detailUrl;
+        }
     });
 
     loadFavoriteStatus()
