@@ -277,6 +277,22 @@
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, .12);
         }
+        /* Fix màu chữ CKEditor trong form thêm/sửa xe */
+        .admin-content .ck-editor__editable,
+        .admin-content .ck-editor__editable_inline {
+            background: #ffffff !important;
+            color: #212529 !important;
+            min-height: 200px;
+        }
+
+        .admin-content .ck-editor__editable * {
+            color: #212529 !important;
+        }
+
+        .admin-content .ck-editor__editable:focus {
+            background: #ffffff !important;
+            color: #212529 !important;
+        }
 
         .admin-content .text-muted {
             color: #98a7bd !important;
