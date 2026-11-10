@@ -43,8 +43,10 @@ namespace CarRoom.Controllers
             var brandId = car.CarModel.BrandId;
             var similar = await _db.Cars.AsNoTracking().Include(c => c.CarModel).ThenInclude(m => m.Brand)
                 .Include(c => c.Colors).ThenInclude(col => col.CarImages)
-                .Where(c => c.Id != car.Id && c.TrangThai != "Ngừng bán" &&
-                    (c.CarModel.LoaiThanXe == bodyType || c.CarModel.BrandId == brandId))
+                .Where(c => c.Id != car.Id
+                         && c.TrangThai != "Ngừng bán"
+                         && c.Colors.Any(col => col.SoLuongTon > 0)
+                         && (c.CarModel.LoaiThanXe == bodyType || c.CarModel.BrandId == brandId))
                 .OrderByDescending(c => c.CarModel.LoaiThanXe == bodyType)
                 .ThenBy(c => Math.Abs(c.Gia - car.Gia)).Take(4).ToListAsync();
             return View(new CarDetailViewModel { Car = car, SimilarCars = similar });

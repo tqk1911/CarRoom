@@ -24,7 +24,9 @@ namespace CarRoom.Controllers.Api
             f.Page = Math.Max(1, f.Page);
             f.PageSize = Math.Clamp(f.PageSize, 1, 50);
 
-            var query = _db.Cars.AsNoTracking().Where(c => c.TrangThai != "Ngừng bán");
+            var query = _db.Cars.AsNoTracking()
+                .Where(c => c.TrangThai != "Ngừng bán"
+                     && c.Colors.Any(col => col.SoLuongTon > 0));
 
             // Tick nhiều hãng / loại thân xe / nhiên liệu = lấy xe thuộc BẤT KỲ giá trị nào được tick
             if (f.BrandIds.Count > 0) query = query.Where(c => f.BrandIds.Contains(c.CarModel.BrandId));

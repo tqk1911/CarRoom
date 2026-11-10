@@ -21,7 +21,8 @@ namespace CarRoom.Controllers
                     .ThenInclude(m => m.Brand)
                 .Include(c => c.Colors)
                     .ThenInclude(col => col.CarImages)
-                .Where(c => c.TrangThai != "Ngừng bán")
+                .Where(c => c.TrangThai != "Ngừng bán"
+                         && c.Colors.Any(col => col.SoLuongTon > 0))
                 .OrderByDescending(c => c.NgayDang)
                 .Take(8)
                 .AsNoTracking()
@@ -32,7 +33,9 @@ namespace CarRoom.Controllers
                     .ThenInclude(m => m.Brand)
                 .Include(c => c.Colors)
                     .ThenInclude(col => col.CarImages)
-                .Where(c => c.NoiBat == "Có" && c.TrangThai != "Ngừng bán")
+                .Where(c => c.NoiBat == "Có"
+                         && c.TrangThai != "Ngừng bán"
+                         && c.Colors.Any(col => col.SoLuongTon > 0))
                 .OrderByDescending(c => c.NgayDang)
                 .Take(8)
                 .AsNoTracking()
