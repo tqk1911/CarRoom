@@ -30,6 +30,18 @@ namespace CarRoom.Controllers.Api
             if (f.BrandIds.Count > 0) query = query.Where(c => f.BrandIds.Contains(c.CarModel.BrandId));
             if (f.BodyTypes.Count > 0) query = query.Where(c => f.BodyTypes.Contains(c.CarModel.LoaiThanXe));
             if (f.Fuels.Count > 0) query = query.Where(c => f.Fuels.Contains(c.NhienLieu));
+            if (!string.IsNullOrWhiteSpace(f.Keyword))
+            {
+                var kw = f.Keyword.Trim();
+                if (kw.Length > 100) kw = kw[..100];
+
+                // Mỗi từ phải khớp hãng hoặc dòng xe, ví dụ "mercedes eqs"
+                foreach (var word in kw.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Where(c => c.CarModel.Brand.TenHang.Contains(word)
+                                          || c.CarModel.TenDongXe.Contains(word));
+                }
+            }
 
             if (f.MinPrice.HasValue) query = query.Where(c => c.Gia >= f.MinPrice.Value);
             if (f.MaxPrice.HasValue) query = query.Where(c => c.Gia <= f.MaxPrice.Value);

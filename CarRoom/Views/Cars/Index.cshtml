@@ -32,6 +32,7 @@
         <aside class="col-lg-3">
             <form id="filter-form" class="card card-body" autocomplete="off">
                 @Html.AntiForgeryToken()
+                <input type="hidden" id="f-keyword" name="keyword" value="@f.Keyword" />
 
                 <h2 class="h6 mb-3">Bộ lọc</h2>
 

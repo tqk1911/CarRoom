@@ -13,17 +13,22 @@ namespace CarRoom.Controllers
         public const string FilterCookieName = "carFilter";
         private readonly AppDbContext _db;
         public CarsController(AppDbContext db) => _db = db;
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? q)
         {
-            var activeCars = _db.Cars.AsNoTracking().Where(c => c.TrangThai != "Ngừng bán");
+            var activeCars = _db.Cars.AsNoTracking()
+                .Where(c => c.TrangThai != "Ngừng bán" && c.Colors.Any(col => col.SoLuongTon > 0));
+
+            var filter = ReadFilterCookie();
+            filter.Keyword = string.IsNullOrWhiteSpace(q) ? null : q.Trim();
+
             var vm = new CarIndexViewModel
             {
                 Brands = await _db.Brands.AsNoTracking().OrderBy(b => b.TenHang)
-                .Select(b => new SelectListItem { Value = b.Id.ToString(), Text = b.TenHang }).ToListAsync(),
+                    .Select(b => new SelectListItem { Value = b.Id.ToString(), Text = b.TenHang }).ToListAsync(),
                 BodyTypes = await activeCars.Select(c => c.CarModel.LoaiThanXe).Distinct().OrderBy(x => x).ToListAsync(),
                 Fuels = await activeCars.Select(c => c.NhienLieu).Distinct().OrderBy(x => x).ToListAsync(),
                 Years = await activeCars.Select(c => c.NamSanXuat).Distinct().OrderByDescending(x => x).ToListAsync(),
-                Filter = ReadFilterCookie()
+                Filter = filter
             };
             return View(vm);
         }

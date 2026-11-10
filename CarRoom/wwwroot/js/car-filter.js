@@ -13,6 +13,7 @@
     var countEl = document.getElementById('result-count');
     var priceEl = document.getElementById('f-price');
     var yearEl = document.getElementById('f-year');
+    var keywordEl = document.getElementById('f-keyword');
     var sortPrice = document.getElementById('f-sort-price');
     var sortYear = document.getElementById('f-sort-year');
     var tokenEl = form.querySelector('input[name="__RequestVerificationToken"]');
@@ -75,6 +76,9 @@
         checkedValues('fuels').forEach(function (v) {
             params.append('fuels', v);
         });
+        if (keywordEl && keywordEl.value.trim()) {
+            params.set('keyword', keywordEl.value.trim());
+        }
 
         if (yearEl.value) {
             params.set('year', yearEl.value);
@@ -355,6 +359,10 @@
         priceEl.value = '';
         sortPrice.value = '';
         sortYear.value = 'newest';
+        if (keywordEl) keywordEl.value = '';
+        var navInput = document.getElementById('nav-search-input');
+        if (navInput) navInput.value = '';
+        history.replaceState(null, '', window.location.pathname);
 
         load(1);
     });

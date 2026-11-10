@@ -52,6 +52,13 @@
                                asp-action="Index">Xe yêu thích</a>
                         </li>
                     </ul>
+                    <form class="d-flex my-2 my-lg-0 me-lg-3" role="search"
+                          asp-controller="Cars" asp-action="Index" method="get">
+                        <input id="nav-search-input" class="form-control form-control-sm me-2" type="search"
+                               name="q" maxlength="100" placeholder="Tìm xe (hãng, dòng xe)..."
+                               value="@Context.Request.Query["q"]" aria-label="Tìm xe" />
+                        <button class="btn btn-light btn-sm text-nowrap" type="submit">Tìm</button>
+                    </form>
 
                     <ul class="navbar-nav align-items-lg-center">
                         @if (User.Identity?.IsAuthenticated == true)

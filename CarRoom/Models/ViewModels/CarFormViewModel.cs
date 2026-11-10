@@ -58,6 +58,7 @@ namespace CarRoom.Models.ViewModels
     }
     public class CarFilterQuery
     {
+        public string? Keyword { get; set; }
         public List<int> BrandIds { get; set; } = new(); 
         public decimal? MinPrice { get; set; }
         public decimal? MaxPrice { get; set; }
